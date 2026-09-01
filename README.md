@@ -66,75 +66,176 @@ ep7.js  →  Habit & Gate Rendering        (habit cards, gate weekly tracker)
 ep8.js  →  Full UI Renderer              (army, armory, bosses, calendar, HUD)
 ```
 
-### Technical Flow
+### 🔄 Core Game Loop
 
+```mermaid
+flowchart TD
+    A([👤 Player Opens Game]) --> B[Load State\nfrom localStorage]
+    B --> C{First Time?}
+    C -- Yes --> D[Intro Sequence\n+ Character Select]
+    C -- No --> E[Show Game HUD]
+    D --> E
+
+    E --> F[Daily Habits Tab]
+    F --> G{Complete a Habit\nWorkout / Read / Code\nMeditate / Plan}
+
+    G --> H[✅ Mark Complete\nhabitData\[date\]\[id\] = true]
+    H --> I[+20 XP Awarded]
+    I --> J[recalcStreak\nwalk back habitData]
+    J --> K{Day Complete?\nAll 5 done?}
+    K -- Yes --> L[totalDaysCompleted++\nGate day marked]
+    K -- No --> M[Partial Progress]
+
+    I --> N[checkLevelUp\nxp vs thresholds]
+    N --> O{Level Up?}
+    O -- Yes --> P[🎉 Level Up Modal\nNew Rank Check]
+    O -- No --> Q[Continue]
+
+    I --> R[checkCreatureUnlocks\nscan 14 creatures]
+    R --> S{Condition Met?}
+    S -- Yes --> T[🐉 Creature Joins Army!\nUnlock Animation]
+    S -- No --> Q
+
+    I --> U[checkWeaponUpgrades\nscan 5 weapon lines]
+    U --> V{Tier Threshold?}
+    V -- Yes --> W[⚔️ Weapon Drop Modal]
+    V -- No --> Q
+
+    I --> X[checkBossProgress\nbossProgress\[id\]++]
+    X --> Y{Boss HP = 0?}
+    Y -- Yes --> Z[💀 Boss Defeated!\nReward Unlocked]
+    Y -- No --> Q
+
+    L --> AA[saveState\nlocalStorage]
+    P --> AA
+    T --> AA
+    W --> AA
+    Z --> AA
+    Q --> AA
+    AA --> F
 ```
-┌─────────────────────────────────────────────────────────────┐
-│                        USER ACTION                          │
-│              (marks habit complete for today)               │
-└──────────────────────┬──────────────────────────────────────┘
-                       │
-                       ▼
-┌─────────────────────────────────────────────────────────────┐
-│                    ep5.js — GAME LOGIC                      │
-│                                                             │
-│  completeHabit(habitId)                                     │
-│    ├── Mark day in S.habitData[date][habitId] = true        │
-│    ├── Award XP → S.xp += habitXP                          │
-│    ├── Check isDayComplete() → increment S.totalDays        │
-│    ├── recalcStreak() → walk back through habitData         │
-│    ├── checkLevelUp() → compare xp vs level thresholds      │
-│    ├── checkCreatureUnlocks() → scan all 14 CREATURES       │
-│    ├── checkWeaponUpgrades() → scan all 5 WEAPONS_DATA      │
-│    └── checkBossProgress() → deal 1 HP to active boss       │
-└──────────────────────┬──────────────────────────────────────┘
-                       │
-                       ▼
-┌─────────────────────────────────────────────────────────────┐
-│                  UNLOCK CONDITIONS                          │
-│                                                             │
-│  Creature unlock types:                                     │
-│    streak      → S.streak >= N days                         │
-│    level       → S.level >= N                               │
-│    completions → S.totalDaysCompleted >= N                  │
-│    gate_clears → getGateClearCount() >= N (7/7 weeks)       │
-│    floor       → S.storyProgress >= N (ascension)          │
-│    habit       → countHabitCompletions(id) >= N             │
-│                                                             │
-│  Weapon unlock: countHabitCompletions(habitId) >= threshold │
-│  Boss damage:  S.bossProgress[id]++ per habit completed     │
-└──────────────────────┬──────────────────────────────────────┘
-                       │
-                       ▼
-┌─────────────────────────────────────────────────────────────┐
-│                   STATE PERSISTENCE                         │
-│                                                             │
-│  saveState()  →  localStorage.setItem('hakaiV2', JSON)      │
-│  loadState()  →  localStorage.getItem('hakaiV2') + merge    │
-│                                                             │
-│  State shape:                                               │
-│  { level, xp, rank, streak, playerName,                     │
-│    habitData: { "2025-01-01": { workout:true, read:true }}, │
-│    unlockedCreatures: ["goblin_scout", ...],                 │
-│    weaponTiers: { workout: 3, read: 2 },                    │
-│    bossDefeated: ["rift_crawler"],                           │
-│    bossProgress: { kragath: 14 },                           │
-│    completedGates: { "2025-W01": { days: [...] } } }        │
-└──────────────────────┬──────────────────────────────────────┘
-                       │
-                       ▼
-┌─────────────────────────────────────────────────────────────┐
-│                  ep8.js — UI RENDERER                       │
-│                                                             │
-│  renderHUD()        →  level, XP bar, rank badge, streak    │
-│  renderBestiary()   →  all 14 creature cards                │
-│  renderMyArmy()     →  unlocked creatures only              │
-│  renderArmory()     →  5 weapon lines with tier slots       │
-│  renderBosses()     →  5 epic boss cards with HP bars       │
-│  renderGates()      →  weekly 7-day habit tracker           │
-│  renderQuests()     →  active story quests                  │
-│  renderCalendar()   →  monthly habit calendar heatmap       │
-└─────────────────────────────────────────────────────────────┘
+
+---
+
+### 🏗️ Engine Architecture
+
+```mermaid
+flowchart LR
+    subgraph DATA["📦 Data Layer (ep1–ep4)"]
+        E1[ep1.js\nRanks · Characters\nDefault State]
+        E2[ep2.js\n14 Creatures\nAbilities · Lore]
+        E3[ep3.js\nWeapons · Bosses\nGates Data]
+        E4[ep4.js\nStory Arcs\nQuests · Lore]
+    end
+
+    subgraph LOGIC["⚙️ Logic Layer (ep5–ep6)"]
+        E5[ep5.js\nXP · Leveling\nUnlock Engine]
+        E6[ep6.js\nModals · Notifs\nBoss Modal]
+    end
+
+    subgraph UI["🖥️ UI Layer (ep7–ep8)"]
+        E7[ep7.js\nHabit Cards\nGate Tracker]
+        E8[ep8.js\nFull Renderer\nAll Tabs + HUD]
+    end
+
+    subgraph STORAGE["💾 Persistence"]
+        LS[(localStorage\nhakaiV2)]
+    end
+
+    DATA --> LOGIC
+    LOGIC --> UI
+    UI --> STORAGE
+    STORAGE --> LOGIC
+```
+
+---
+
+### 🔓 Unlock System
+
+```mermaid
+flowchart TD
+    H1[⚔️ WORKOUT] --> W1[Mjolnir T3]
+    H1 --> W2[Excalibur T4]
+    H1 --> W3[Void Sword T5]
+
+    H2[📚 READ/LEARN] --> W4[Staff of Wisdom T3]
+    H2 --> W5[Demon Staff T4]
+    H2 --> W6[Neil Bow T5]
+
+    H3[💻 BUILD/CODE] --> W7[Trishul T3]
+    H3 --> W8[Gauntlets T4]
+
+    H4[🧘 MEDITATE] --> W9[Cloak of Shadow T3]
+
+    STREAK3[🔥 3-Day Streak] --> C1[Goblin Scout]
+    STREAK7[🔥 7-Day Streak] --> C2[Direwolf Alpha]
+    WORKOUT5[⚔️ Workout ×5] --> C3[Pack Wolf]
+    DAYS30[📅 30 Full Days] --> C4[Lizardman Shaman]
+    DAYS75[📅 75 Full Days] --> C5[Elder Direwolf]
+    GATE3[🚪 3× Full Gate Clear] --> C6[Cryptid Stalker]
+    LV11[⬆️ Level 11] --> C7[Hobgoblin Warchief]
+    LV41[⬆️ Level 41] --> C8[Elven Shadowblade]
+    LV61[⬆️ Level 61] --> C9[Vampire Lord]
+    LV81[⬆️ Level 81] --> C10[Archangel of Ruin]
+    LV96[⬆️ Level 96] --> C11[Void Cryptid]
+    FLOOR15[🏰 Floor 15] --> C12[Insectoid General]
+    FLOOR20[🏰 Floor 20] --> C13[Demon Knight]
+    FLOOR25[🏰 Floor 25] --> C14[Primordial Demon]
+```
+
+---
+
+### 👹 Boss Progression
+
+```mermaid
+flowchart LR
+    START([🔰 E-RANK\nLevel 1]) --> B1
+
+    B1["🕷️ THE RIFT CRAWLER\nLevel 20 · 15 HP\nThe gap between potential & action"]
+    B1 -- Defeated --> B2
+
+    B2["💀 BONE WARLORD KRAGATH\nLevel 40 · 30 HP\nThe weight of past failures"]
+    B2 -- Defeated --> B3
+
+    B3["🐍 SERPENT QUEEN NYX\nLevel 60 · 50 HP\nAncient judgment — are you worthy?"]
+    B3 -- Defeated --> B4
+
+    B4["⬛ THE VOID TITAN\nLevel 80 · 70 HP\nEntropy — the pull of doing nothing"]
+    B4 -- Defeated --> B5
+
+    B5["🌌 THE PROTOCOL ITSELF\nLevel 100 · 100 HP\nThe final boss is the system watching you"]
+    B5 -- Defeated --> END
+
+    END(["✨ SSS-RANK\nSystem Origin\nTranscendence"])
+
+    style B1 fill:#3b0764,stroke:#9333ea,color:#e9d5ff
+    style B2 fill:#450a0a,stroke:#ef4444,color:#fee2e2
+    style B3 fill:#451a03,stroke:#f59e0b,color:#fef3c7
+    style B4 fill:#2e1065,stroke:#8b5cf6,color:#ede9fe
+    style B5 fill:#052e16,stroke:#22c55e,color:#dcfce7
+    style END fill:#1c1917,stroke:#fbbf24,color:#fef3c7
+```
+
+---
+
+### 💾 State Architecture
+
+```mermaid
+flowchart TD
+    subgraph STATE["🗄️ Game State Object (localStorage)"]
+        S1[level · xp · rank · streak]
+        S2["habitData: { date: { workout, read, code, meditate, plan } }"]
+        S3["unlockedCreatures: [ id, id, ... ]"]
+        S4["weaponTiers: { habitId: tierNumber }"]
+        S5["bossProgress: { bossId: damageDealt }"]
+        S6["bossDefeated: [ id, id, ... ]"]
+        S7["completedGates: { weekId: { days: [...] } }"]
+    end
+
+    SAVE[saveState\nlocalStorage.setItem] --> STATE
+    STATE --> LOAD[loadState\nlocalStorage.getItem]
+    LOAD --> MERGE[Deep merge with\nDEFAULT_STATE]
+    MERGE --> RENDER[renderAll\nHUD + All Tabs]
 ```
 
 ### CSS Architecture
