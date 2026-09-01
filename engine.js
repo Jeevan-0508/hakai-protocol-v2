@@ -922,7 +922,7 @@ function renderQuests(){
   document.getElementById('daily-progress-value').textContent=`${doneCount}/${total} QUESTS — ${pct}% XP`;
   document.getElementById('streak-current').textContent=S.streak;
   document.getElementById('streak-longest').textContent=S.longestStreak;
-  document.getElementById('streak-total-days').textContent=S.totalDaysCompleted||0;const ttd=document.getElementById('streak-tasks-done');if(ttd)ttd.textContent=getTotalTasksDone();
+  const liveDays=Object.values(S.habitData).filter(d=>S.habits.length>0&&S.habits.every(h=>d[h.id])).length;S.totalDaysCompleted=liveDays;document.getElementById('streak-total-days').textContent=liveDays;const ttd=document.getElementById('streak-tasks-done');if(ttd)ttd.textContent=getTotalTasksDone();
 }
 
 function renderAscension(){
