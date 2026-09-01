@@ -824,8 +824,6 @@ function renderGateWidget(){
   const count=gate.days?gate.days.length:0;
   document.getElementById('gate-progress-text').innerHTML=`<span>${count}</span>/7 DAYS`;
 }
-let selectedQuestDate=todayKey();
-function selectQuestDate(dKey){selectedQuestDate=dKey;renderQuests();if(typeof playUINav==='function')playUINav();}
 function renderDateStrip(){
   const strip=document.getElementById('quest-date-strip');
   if(!strip)return;
