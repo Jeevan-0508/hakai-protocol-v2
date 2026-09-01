@@ -1403,3 +1403,41 @@ body{background:var(--bg-deep);color:var(--text-primary);font-family:'Rajdhani',
 .qdl-tag.future { background: rgba(100,116,139,.1); color: #94a3b8; border: 1px solid rgba(100,116,139,.2); }
 .quest-btn.future-btn { opacity: .4; cursor: not-allowed; }
 
+
+/* ══════════════════════════════════════════════
+   CALENDAR TOGGLE BUTTON + COLLAPSIBLE
+══════════════════════════════════════════════ */
+.cal-toggle-btn {
+  display: flex; align-items: center; gap: 10px;
+  width: 100%; padding: 12px 18px;
+  background: rgba(15,8,30,.85);
+  border: 1px solid rgba(124,58,237,.35);
+  border-radius: 10px; cursor: pointer;
+  transition: all .2s; margin-bottom: 4px;
+}
+.cal-toggle-btn:hover {
+  background: rgba(124,58,237,.2);
+  border-color: #7c3aed;
+  box-shadow: 0 0 12px rgba(124,58,237,.25);
+}
+.cal-toggle-icon  { font-size: 1rem; }
+.cal-toggle-label {
+  flex: 1; text-align: left;
+  font-size: .72rem; font-weight: 800;
+  letter-spacing: .12em; color: #a78bfa;
+}
+.cal-chevron {
+  font-size: .7rem; color: #7c3aed; font-weight: 700;
+  transition: transform .2s;
+}
+
+.cal-body {
+  overflow: hidden;
+  max-height: 0;
+  transition: max-height .35s ease;
+}
+
+/* Fix calendar panel sizing — max-width + compact cells */
+.cal-panel { max-width: 420px; }
+.cal-grid  { gap: 4px; }
+.cal-day   { min-height: 38px; max-height: 42px; }

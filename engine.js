@@ -341,6 +341,8 @@ function loadState(){const r=localStorage.getItem('hakai_v2');if(r){try{const s=
 let selectedQuestDate=todayKey();
 const _tdy=new Date();
 let calYear=_tdy.getFullYear();let calMonth=_tdy.getMonth();
+let calOpen=false;
+function toggleCalendar(){calOpen=!calOpen;const body=document.getElementById('cal-body');const btn=document.getElementById('cal-toggle-btn');if(body){body.style.maxHeight=calOpen?body.scrollHeight+'px':'0';}if(btn){btn.querySelector('.cal-chevron').textContent=calOpen?'▲':'▼';btn.querySelector('.cal-toggle-label').textContent=calOpen?'HIDE CALENDAR':'BROWSE BY DATE';}}
 function selectQuestDate(dKey){selectedQuestDate=dKey;renderQuests();if(typeof playUINav==='function')playUINav();}
 function saveState(){localStorage.setItem('hakai_v2',JSON.stringify(S));}
 function resetState(){if(!confirm('ERASE ALL PROGRESS? This cannot be undone.'))return;localStorage.removeItem('hakai_v2');location.reload();}
@@ -860,7 +862,13 @@ function renderDateStrip(){
     </div>`;
   }
   gHtml+='</div></div>';
-  strip.innerHTML=yHtml+mHtml+gHtml;
+  const body=document.getElementById('cal-body');
+  if(!body){
+    strip.innerHTML=`<button class="cal-toggle-btn" id="cal-toggle-btn" onclick="toggleCalendar()"><span class="cal-toggle-icon">📅</span><span class="cal-toggle-label">BROWSE BY DATE</span><span class="cal-chevron">▼</span></button><div class="cal-body" id="cal-body" style="max-height:0">${yHtml+mHtml+gHtml}</div>`;
+  } else {
+    body.innerHTML=yHtml+mHtml+gHtml;
+    if(calOpen) body.style.maxHeight=body.scrollHeight+'px';
+  }
   // scroll selected day into view
   setTimeout(()=>{const s=strip.querySelector('.cal-day.selected');if(s)s.scrollIntoView({behavior:'smooth',block:'nearest'});},60);
 }
