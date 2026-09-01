@@ -1134,6 +1134,24 @@ function renderBosses(){
     c.appendChild(div);
   });
 }
+
+function toggleGateDay(dKey, wk){
+  if(!S.completedGates[wk]) S.completedGates[wk]={days:[],rank:''};
+  const gate=S.completedGates[wk];
+  const idx=gate.days.indexOf(dKey);
+  if(idx>=0){ gate.days.splice(idx,1); }
+  else { gate.days.push(dKey); }
+  const dc=gate.days.length;
+  if(dc>=7)gate.rank='S';
+  else if(dc>=5)gate.rank='A';
+  else if(dc>=3)gate.rank='B';
+  else if(dc>0)gate.rank='C';
+  else gate.rank='';
+  S.totalDaysCompleted=Object.values(S.completedGates).reduce((a,g)=>a+(g.days?g.days.length:0),0);
+  recalcStreak();saveState();renderGates();renderSidebar();renderHeader();
+  if(typeof playUIClick==='function') playUIClick();
+  toast(idx>=0 ? '📅 Day removed' : '✅ Day marked complete');
+}
 function renderGates(){
   const c=document.getElementById('gates-grid');c.innerHTML='';
   const today=todayKey(),currWk=getWeekKey(today);
@@ -1155,7 +1173,9 @@ function renderGates(){
       const dKey=dd.toISOString().split('T')[0];
       const isDone=gate.days&&gate.days.includes(dKey),isToday2=dKey===today,isPast=dKey<today&&!isDone;
       const dc=isDone?'complete':isToday2?'today':isPast?'missed':'';
-      dotsHTML+=`<div class="gate-dot ${dc}">${WEEK_DAYS[i].charAt(0)}</div>`;
+      const isPastClickable=dKey<today&&dKey!==today;
+      const dotClick=isPastClickable?`onclick="toggleGateDay('${dKey}','${wk}')" title="Click to toggle this day"`:'';
+      dotsHTML+=`<div class="gate-dot ${dc} ${isPastClickable?'gate-dot-clickable':''}" ${dotClick}>${WEEK_DAYS[i].charAt(0)}</div>`;
     }
     const cleared=daysDone>=7;
     c.innerHTML+=`<div class="gate-card ${isActive?'active-gate':''} ${cleared?'cleared-gate':''}">

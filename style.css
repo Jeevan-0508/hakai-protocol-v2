@@ -1149,3 +1149,18 @@ body{background:var(--bg-deep);color:var(--text-primary);font-family:'Rajdhani',
   .boss-epic-name { font-size: 14px !important; }
   .bm-boss-name { font-size: 1.3rem !important; }
 }
+
+/* ── Clickable gate dots (past days) ── */
+.gate-dot-clickable {
+  cursor: pointer;
+  transition: transform 0.12s, box-shadow 0.12s, background 0.12s;
+}
+.gate-dot-clickable:hover {
+  transform: scale(1.25);
+  box-shadow: 0 0 8px rgba(139,92,246,0.7);
+  background: rgba(139,92,246,0.35) !important;
+  border-color: #7c3aed !important;
+}
+.gate-dot-clickable:active {
+  transform: scale(0.95);
+}
