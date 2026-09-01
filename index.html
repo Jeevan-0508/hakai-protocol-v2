@@ -2,8 +2,16 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>HAKAI PROTOCOL V2</title>
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="favicon.ico" type="image/x-icon">
+  <meta name="theme-color" content="#7c3aed">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="HAKAI">
+  <link rel="apple-touch-icon" href="icons/icon-192.png">
+  <meta name="description" content="A real-life RPG where your habits are your power. Level up by working out, reading, coding, meditating, and planning.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
@@ -460,6 +468,16 @@
 </div>
 
 <script src="engine.js"></script>
+<script src="audio_engine.js"></script>
 <script src="dev_panel.js"></script>
+<script>
+  if('serviceWorker' in navigator){
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js')
+        .then(r => console.log('%cHakai SW registered', 'color:#7c3aed'))
+        .catch(e => console.log('SW error:', e));
+    });
+  }
+</script>
 </body>
 </html>

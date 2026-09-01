@@ -397,7 +397,7 @@ function checkCreatureUnlocks(){
     if(S.unlockedCreatures.includes(c.id))return;
     if(isCreatureUnlockable(c)){S.unlockedCreatures.push(c.id);newUnlocks.push(c);}
   });
-  if(newUnlocks.length){saveState();newUnlocks.forEach((c,i)=>setTimeout(()=>showCreatureUnlock(c),i*1200+400));}
+  if(newUnlocks.length){saveState();if(typeof playCreatureUnlock==='function')setTimeout(playCreatureUnlock,300);newUnlocks.forEach((c,i)=>setTimeout(()=>showCreatureUnlock(c),i*1200+400));}
 }
 
 function checkWeaponUpgrades(){
@@ -415,9 +415,9 @@ function checkBossProgress(){
     if(S.bossDefeated.includes(boss.id))return;
     if(S.level<boss.level)return;
     if(!S.bossProgress[boss.id])S.bossProgress[boss.id]=0;
-    S.bossProgress[boss.id]++;
+    S.bossProgress[boss.id]++;if(typeof playBossDamage==='function')playBossDamage();
     if(S.bossProgress[boss.id]>=boss.hpRequired){
-      S.bossDefeated.push(boss.id);saveState();
+      S.bossDefeated.push(boss.id);if(typeof playBossDefeated==='function')setTimeout(playBossDefeated,400);;saveState();
       setTimeout(()=>showBossDefeated(boss),600);
     }
   });
@@ -453,7 +453,7 @@ function checkLevelUp(){
     const newRank=getRank(S.level).rank;
     if(newRank!==oldRank)setTimeout(()=>triggerRankUp(oldRank,newRank),1800);
   }
-  if(leveled){triggerLevelUp();checkCreatureUnlocks();}
+  if(leveled){if(typeof playLevelUp==='function')playLevelUp();triggerLevelUp();checkCreatureUnlocks();}
 }
 
 function checkDayCompletion(date,completing){

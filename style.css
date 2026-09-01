@@ -1097,3 +1097,55 @@ body{background:var(--bg-deep);color:var(--text-primary);font-family:'Rajdhani',
 .cm-art-header {
   background: radial-gradient(ellipse at 50% 30%, #111128 0%, #060610 100%) !important;
 }
+
+/* ============================================================
+   MOBILE RESPONSIVE
+   ============================================================ */
+@media (max-width: 768px) {
+  .game-layout { flex-direction: column !important; }
+
+  .sidebar {
+    width: 100% !important;
+    flex-direction: row !important;
+    flex-wrap: wrap;
+    padding: 8px 12px !important;
+    gap: 8px;
+    border-right: none !important;
+    border-bottom: 1px solid var(--border-mid);
+  }
+
+  .sidebar-avatar { display: none; }
+  .sidebar-stats { flex-direction: row; flex-wrap: wrap; gap: 6px; }
+
+  .main-content { padding: 8px !important; }
+
+  nav.tab-nav {
+    overflow-x: auto;
+    flex-wrap: nowrap !important;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    gap: 4px !important;
+  }
+  nav.tab-nav::-webkit-scrollbar { display: none; }
+  .tab-btn { font-size: 9px !important; padding: 6px 10px !important; white-space: nowrap; }
+
+  #boss-grid { grid-template-columns: 1fr !important; }
+  .creature-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)) !important; }
+  .creature-card { min-height: 200px !important; }
+
+  .boss-modal, .creature-modal { margin: 0 !important; border-radius: 12px !important; }
+  #boss-modal-bg, .creature-modal-bg { padding: 12px !important; }
+
+  .armory-grid { grid-template-columns: 1fr !important; }
+
+  #dev-toggle { bottom: 14px; right: 14px; }
+  #dev-panel { width: calc(100vw - 28px); right: 14px; }
+
+  #audio-toggle-btn { right: 90px !important; top: 10px !important; }
+}
+
+@media (max-width: 480px) {
+  .intro-title { font-size: 2rem !important; }
+  .boss-epic-name { font-size: 14px !important; }
+  .bm-boss-name { font-size: 1.3rem !important; }
+}

@@ -1,0 +1,32 @@
+{
+  "name": "Hakai Protocol — Hunter System",
+  "short_name": "HAKAI",
+  "description": "A real-life RPG where your habits are your power. Level up by working out, reading, coding, meditating, and planning.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#060610",
+  "theme_color": "#7c3aed",
+  "categories": ["productivity", "games", "lifestyle"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "shortcuts": [
+    {
+      "name": "Daily Habits",
+      "short_name": "Habits",
+      "description": "Log today's habits",
+      "url": "./index.html#habits",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Shadow Army",
+      "short_name": "Army",
+      "description": "View your army",
+      "url": "./index.html#army",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}
