@@ -1482,6 +1482,21 @@ function showWeeklyRecap(week,daysDone,tasks,best,worst,rank){
   if(typeof playUISuccess==='function')playUISuccess();
 }
 function closeWeeklyRecap(){const o=document.getElementById('weekly-recap-overlay');if(o)o.classList.remove('open');}
+function toggleSidebar(){
+  const sidebar=document.getElementById('game-sidebar')||document.querySelector('.game-sidebar');
+  const overlay=document.getElementById('sidebar-overlay');
+  if(!sidebar)return;
+  const isOpen=sidebar.classList.contains('sidebar-open');
+  if(isOpen){
+    sidebar.classList.remove('sidebar-open');
+    if(overlay)overlay.classList.remove('active');
+    document.body.style.overflow='';
+  } else {
+    sidebar.classList.add('sidebar-open');
+    if(overlay)overlay.classList.add('active');
+    document.body.style.overflow='hidden';
+  }
+}
 function renderAll(){
   renderHeader();renderSidebar();
   const active=document.querySelector('.tab-panel.active');
@@ -1494,7 +1509,7 @@ function renderAll(){
   if(id==='tab-gates')renderGates();
   if(id==='tab-calendar')renderCalendar();if(id==='tab-achievements')renderAchievements();
 }
-function switchTab(tabId){if(typeof playUINav==='function')playUINav();
+function switchTab(tabId){if(typeof playUINav==='function')playUINav();{const s=document.querySelector('.game-sidebar');const o=document.getElementById('sidebar-overlay');if(s&&s.classList.contains('sidebar-open')){s.classList.remove('sidebar-open');if(o)o.classList.remove('active');document.body.style.overflow='';}};
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
   document.querySelector('[data-tab="'+tabId+'"]').classList.add('active');

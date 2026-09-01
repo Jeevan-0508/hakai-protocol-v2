@@ -79,6 +79,9 @@
 
   <!-- HEADER -->
   <header class="game-header">
+    <button class="hamburger-btn" id="hamburger-btn" onclick="toggleSidebar()" aria-label="Open menu">
+      <span></span><span></span><span></span>
+    </button>
     <span class="header-logo">HAKAI&nbsp;<span>PROTOCOL</span></span>
     <div class="header-divider"></div>
     <div class="header-stat">
@@ -97,6 +100,9 @@
 
   <!-- BODY -->
   <div class="game-body">
+
+    <!-- SIDEBAR OVERLAY (mobile) -->
+    <div class="sidebar-overlay" id="sidebar-overlay" onclick="toggleSidebar()"></div>
 
     <!-- SIDEBAR -->
     <aside class="game-sidebar">

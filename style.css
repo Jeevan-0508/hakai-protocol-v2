@@ -405,13 +405,15 @@ body{background:var(--bg-deep);color:var(--text-primary);font-family:'Rajdhani',
 @keyframes rankReveal{0%{opacity:0;transform:scale(.3) rotate(-10deg);}60%{opacity:1;transform:scale(1.15) rotate(2deg);}100%{opacity:1;transform:scale(1) rotate(0);}}
 @keyframes slideDown{from{opacity:0;transform:translateY(-20px);}to{opacity:1;transform:translateY(0);}}
 
-@media(max-width:768px){
-  :root{--sidebar:0px;}
-  .game-sidebar{position:static;width:100%;border-right:none;border-bottom:1px solid var(--border-dim);height:auto;padding:16px;}
-  .game-body{flex-direction:column;}
-  .game-content{margin-left:0;padding:16px;}
-  .quest-grid{grid-template-columns:1fr;}
-}
+/* ── HAMBURGER + SIDEBAR OVERLAY (mobile) ──────────────────── */
+.hamburger-btn{display:none;align-items:center;justify-content:center;flex-direction:column;gap:5px;
+  width:36px;height:36px;background:transparent;border:1px solid var(--border-dim);
+  border-radius:var(--radius-sm);cursor:pointer;padding:7px 6px;flex-shrink:0;transition:border-color .2s;}
+.hamburger-btn:hover{border-color:var(--border-mid);}
+.hamburger-btn span{display:block;width:18px;height:2px;background:var(--cyan);border-radius:2px;transition:all .25s;}
+.sidebar-overlay{display:none;position:fixed;inset:0;z-index:8500;
+  background:rgba(0,0,0,.65);backdrop-filter:blur(3px);}
+.sidebar-overlay.active{display:block;}
 
 /* ── ARMY SUB NAV ─────────────────────────────────────── */
 .army-sub-nav{display:flex;gap:0;margin-bottom:20px;border:1px solid var(--border-dim);border-radius:var(--radius-sm);overflow:hidden;}
@@ -1099,55 +1101,77 @@ body{background:var(--bg-deep);color:var(--text-primary);font-family:'Rajdhani',
 }
 
 /* ============================================================
-   MOBILE RESPONSIVE
+   MOBILE RESPONSIVE — FULL OVERHAUL
    ============================================================ */
 @media (max-width: 768px) {
-  .game-layout { flex-direction: column !important; }
 
-  .sidebar {
-    width: 100% !important;
-    flex-direction: row !important;
-    flex-wrap: wrap;
-    padding: 8px 12px !important;
-    gap: 8px;
-    border-right: none !important;
-    border-bottom: 1px solid var(--border-mid);
+  /* === HEADER === */
+  .hamburger-btn { display: flex; }
+  .header-date { display: none; }
+  .game-header { gap: 12px; padding: 0 14px; }
+
+  /* === SIDEBAR — slide-in drawer === */
+  .game-sidebar {
+    position: fixed !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    left: -290px !important;
+    width: 270px !important;
+    z-index: 9000 !important;
+    padding-top: calc(var(--header-h) + 8px) !important;
+    transition: left .3s cubic-bezier(.4,0,.2,1) !important;
+  }
+  .game-sidebar.sidebar-open {
+    left: 0 !important;
+    box-shadow: 6px 0 40px rgba(0,0,0,.9) !important;
   }
 
-  .sidebar-avatar { display: none; }
-  .sidebar-stats { flex-direction: row; flex-wrap: wrap; gap: 6px; }
+  /* === CONTENT — full width === */
+  .game-content { margin-left: 0 !important; padding: 12px 10px !important; }
 
-  .main-content { padding: 8px !important; }
+  /* === QUEST GRID — single column === */
+  .quest-grid { grid-template-columns: 1fr !important; }
 
+  /* COMPLETE badge stays in corner — reduce meta right-padding */
+  .quest-card.done .quest-meta { padding-right: 72px; }
+
+  /* Quest button — bigger touch target */
+  .quest-btn { padding: 12px !important; min-height: 44px; }
+
+  /* === TABS — scrollable, touch-friendly === */
   nav.tab-nav {
     overflow-x: auto;
     flex-wrap: nowrap !important;
     -webkit-overflow-scrolling: touch;
     scrollbar-width: none;
-    gap: 4px !important;
+    gap: 2px !important;
   }
   nav.tab-nav::-webkit-scrollbar { display: none; }
-  .tab-btn { font-size: 9px !important; padding: 6px 10px !important; white-space: nowrap; }
+  .tab-btn { font-size: 9px !important; padding: 10px 12px !important; white-space: nowrap; min-height: 44px; }
 
+  /* === OTHER GRIDS === */
   #boss-grid { grid-template-columns: 1fr !important; }
-  .creature-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)) !important; }
+  .creature-grid { grid-template-columns: repeat(2, 1fr) !important; }
   .creature-card { min-height: 200px !important; }
-
-  .boss-modal, .creature-modal { margin: 0 !important; border-radius: 12px !important; }
-  #boss-modal-bg, .creature-modal-bg { padding: 12px !important; }
-
   .armory-grid { grid-template-columns: 1fr !important; }
 
+  /* === MODALS === */
+  .boss-modal, .creature-modal { margin: 0 !important; border-radius: 12px !important; }
+  #boss-modal-bg, .creature-modal-bg { padding: 10px !important; }
+
+  /* === DEV / AUDIO === */
   #dev-toggle { bottom: 14px; right: 14px; }
   #dev-panel { width: calc(100vw - 28px); right: 14px; }
-
-  #audio-toggle-btn { right: 90px !important; top: 10px !important; }
+  #audio-toggle-btn { right: 80px !important; top: 11px !important; }
 }
 
 @media (max-width: 480px) {
   .intro-title { font-size: 2rem !important; }
   .boss-epic-name { font-size: 14px !important; }
   .bm-boss-name { font-size: 1.3rem !important; }
+  .game-content { padding: 8px !important; }
+  .header-logo { font-size: .8rem !important; letter-spacing: 2px !important; }
+  .header-stat .label { display: none; }
 }
 
 /* ── Clickable gate dots (past days) ── */
