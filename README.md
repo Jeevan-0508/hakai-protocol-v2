@@ -21,10 +21,10 @@
 
 <br/>
 
-| | |
-|:---:|:---:|
-| 🎮 [**PLAY NOW**](https://jeevan-0508.github.io/hakai-protocol-v2) | ⬇️ [**DOWNLOAD ZIP**](https://github.com/Jeevan-0508/hakai-protocol-v2/archive/refs/heads/main.zip) |
-| ⚙️ [**DEV MODE**](https://jeevan-0508.github.io/hakai-protocol-v2/dev/) | 📱 **PWA — Add to Home Screen** |
+| 🎮 | ⚙️ | 🖥️ | 📱 |
+|:---:|:---:|:---:|:---:|
+| [**PLAY NOW**](https://jeevan-0508.github.io/hakai-protocol-v2) | [**DEV MODE**](https://jeevan-0508.github.io/hakai-protocol-v2/dev/) | [**WINDOWS .EXE**](https://github.com/Jeevan-0508/hakai-protocol-v2/raw/main/windows_app/Hakai%20Protocol.exe) | [**MOBILE INSTALL**](https://jeevan-0508.github.io/hakai-protocol-v2) |
+| Browser | Sandbox | 7MB App | iOS / Android |
 
 </div>
 
@@ -436,11 +436,14 @@ Tier 1 → Tier 2 → Tier 3 → Tier 4 → Tier 5
 
 | Mode | Link | Platform | Description |
 |:---:|:---|:---:|:---|
-| 🎮 **PLAY** | **[► Launch Hakai Protocol](https://jeevan-0508.github.io/hakai-protocol-v2)** | 🌐 Browser | Instant play, no install needed. Works on any device. Progress auto-saves in browser. |
-| ⚙️ **DEV MODE** | **[► Launch Dev Sandbox](https://jeevan-0508.github.io/hakai-protocol-v2/dev/)** | 🌐 Browser | Full sandbox panel — set level, unlock all, toggle bosses, inject XP. |
-| ⬇️ **DOWNLOAD** | **[► Download ZIP (v2.0)](https://github.com/Jeevan-0508/hakai-protocol-v2/archive/refs/heads/main.zip)** | 💻 Offline | Download & play locally. No internet needed after download. |
-| 📱 **INSTALL APP** | **[► Open in Browser → Install](https://jeevan-0508.github.io/hakai-protocol-v2)** | 📱 Mobile/Desktop | PWA — open link, tap "Add to Home Screen" (iOS) or "Install App" (Android/Chrome). Works offline. |
-| 🐙 **SOURCE CODE** | **[► View on GitHub](https://github.com/Jeevan-0508/hakai-protocol-v2)** | 📂 GitHub | Full source code, README, assets. Star ⭐ if you like it! |
+| 🎮 **PLAY** | **[► Launch in Browser](https://jeevan-0508.github.io/hakai-protocol-v2)** | 🌐 Any Browser | Instant play, no install. Progress auto-saves. |
+| ⚙️ **DEV MODE** | **[► Launch Dev Sandbox](https://jeevan-0508.github.io/hakai-protocol-v2/dev/)** | 🌐 Browser | Full sandbox — set level, unlock all, inject XP. |
+| 🖥️ **WINDOWS APP** | **[► Download Hakai Protocol.exe](https://github.com/Jeevan-0508/hakai-protocol-v2/raw/main/windows_app/Hakai%20Protocol.exe)** | 🪟 Windows 10/11 | 7MB exe — opens as a clean app window, no browser chrome. |
+| 📱 **ANDROID** | **[► Open Chrome → Add to Home Screen](https://jeevan-0508.github.io/hakai-protocol-v2)** | 🤖 Android | Open in Chrome → ⋮ menu → "Add to Home Screen". Works offline. |
+| 🍎 **iOS** | **[► Open Safari → Share → Add to Home Screen](https://jeevan-0508.github.io/hakai-protocol-v2)** | 🍎 iPhone/iPad | Open in Safari → Share (□↑) → "Add to Home Screen". Works offline. |
+| 📦 **ANDROID APK** | **[► Build via PWABuilder](https://www.pwabuilder.com/?site=https://jeevan-0508.github.io/hakai-protocol-v2)** | 🤖 Android APK | Auto-generates a real APK from the PWA. Free, no account needed. |
+| ⬇️ **SOURCE ZIP** | **[► Download ZIP](https://github.com/Jeevan-0508/hakai-protocol-v2/archive/refs/heads/main.zip)** | 💻 Self-host | Full source. Run locally with Python or the included .bat file. |
+| 🐙 **SOURCE CODE** | **[► View on GitHub](https://github.com/Jeevan-0508/hakai-protocol-v2)** | 📂 GitHub | Star ⭐ if you like it! |
 
 </div>
 
