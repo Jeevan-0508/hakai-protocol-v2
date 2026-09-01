@@ -425,46 +425,54 @@ Tier 1 → Tier 2 → Tier 3 → Tier 4 → Tier 5
 
 ## 🚀 Play the Game
 
-### 🎮 Normal Play
-**[► LAUNCH HAKAI PROTOCOL](https://jeevan-0508.github.io/hakai-protocol-v2)**
+<div align="center">
 
-> Your progress saves automatically in your browser. Each device has its own save.
+| | Link | Description |
+|---|---|---|
+| 🎮 | **[PLAY NOW — Browser](https://jeevan-0508.github.io/hakai-protocol-v2)** | Instant play, no install. Progress saves in your browser. |
+| ⚙️ | **[DEV / SANDBOX MODE](https://jeevan-0508.github.io/hakai-protocol-v2/dev/)** | Unlock everything, set level, test all features. |
+| ⬇️ | **[DOWNLOAD ZIP](https://github.com/Jeevan-0508/hakai-protocol-v2/archive/refs/heads/main.zip)** | Play offline. Extract → run `HAKAI DEV MODE.bat` (Windows) or `python3 -m http.server 8888` (Mac/Linux). |
 
----
-
-### ⚙️ Developer / Sandbox Mode
-**[► LAUNCH DEV MODE](https://jeevan-0508.github.io/hakai-protocol-v2/dev/)**
-
-> Activates the dev panel: set level, unlock all creatures, toggle boss states, inject XP, navigate any tab instantly. For testing and exploration.
+</div>
 
 ---
 
-### 💾 Download & Run Locally
+### 💾 Download & Play Offline
 
-Want to run it offline or host it yourself?
+<div align="center">
 
-**Option 1 — Simplest (just open the file):**
-1. Click the green **Code** button above → **Download ZIP**
-2. Extract the ZIP anywhere
-3. Open `index.html` in any browser
+[![Download ZIP](https://img.shields.io/badge/⬇️_DOWNLOAD_ZIP-hakai--protocol--v2-7c3aed?style=for-the-badge&logo=github)](https://github.com/Jeevan-0508/hakai-protocol-v2/archive/refs/heads/main.zip)
 
-**Option 2 — Local server (recommended, avoids browser restrictions):**
+**[⬇️ Click here to download the latest version](https://github.com/Jeevan-0508/hakai-protocol-v2/archive/refs/heads/main.zip)**
+
+</div>
+
+#### After downloading:
+
+**Windows (easiest — one double-click):**
+1. Download the ZIP above → Extract it
+2. Double-click **`HAKAI DEV MODE.bat`** inside the folder
+3. It starts a local server and opens the game automatically in your browser
+
+**Mac / Linux:**
+1. Download the ZIP → Extract it
+2. Open Terminal inside the folder and run:
 ```bash
-# Python (built into most systems)
-cd hakai-protocol-v2
-python -m http.server 8888
-# then open http://localhost:8888
+python3 -m http.server 8888
 ```
+3. Open **http://localhost:8888** in your browser
 
+**Any device (alternative):**
 ```bash
 # Node.js
 npx serve .
+
+# Python 2
+python -m SimpleHTTPServer 8888
 ```
 
-> The game needs to be served from a web server (not `file://`) for all features to work correctly. The included `hakai_dev_server.py` handles this automatically.
-
-**Option 3 — One-click launcher (Windows):**
-The ZIP includes `HAKAI DEV MODE.bat` — double-click it to start the local server and open the game automatically.
+> **Why not just open `index.html` directly?**
+> Some browsers block local file requests (fonts, images) when opened via `file://`. Running a local server (any of the above) avoids this entirely.
 
 ---
 
