@@ -70,43 +70,56 @@ ep8.js  →  Full UI Renderer              (army, armory, bosses, calendar, HUD)
 
 ```mermaid
 flowchart TD
-    A([👤 Player Opens Game]) --> B[Load State\nfrom localStorage]
+    A([Player Opens Game]) --> B["Load State from localStorage"]
     B --> C{First Time?}
-    C -- Yes --> D[Intro Sequence\n+ Character Select]
-    C -- No --> E[Show Game HUD]
+    C -->|Yes| D["Intro Sequence + Character Select"]
+    C -->|No| E[Show Game HUD]
     D --> E
 
     E --> F[Daily Habits Tab]
-    F --> G{Complete a Habit\nWorkout / Read / Code\nMeditate / Plan}
+    F --> G{"Complete a Habit
+Workout / Read / Code / Meditate / Plan"}
 
-    G --> H[✅ Mark Complete\nhabitData\[date\]\[id\] = true]
+    G --> H["Mark Complete
+habitData = true"]
     H --> I[+20 XP Awarded]
-    I --> J[recalcStreak\nwalk back habitData]
-    J --> K{Day Complete?\nAll 5 done?}
-    K -- Yes --> L[totalDaysCompleted++\nGate day marked]
-    K -- No --> M[Partial Progress]
+    I --> J["recalcStreak
+walk back habitData"]
+    J --> K{"Day Complete?
+All 5 done?"}
+    K -->|Yes| L["totalDaysCompleted++
+Gate day marked"]
+    K -->|No| M[Partial Progress]
 
-    I --> N[checkLevelUp\nxp vs thresholds]
+    I --> N["checkLevelUp
+xp vs thresholds"]
     N --> O{Level Up?}
-    O -- Yes --> P[🎉 Level Up Modal\nNew Rank Check]
-    O -- No --> Q[Continue]
+    O -->|Yes| P["Level Up Modal
+New Rank Check"]
+    O -->|No| Q[Continue]
 
-    I --> R[checkCreatureUnlocks\nscan 14 creatures]
+    I --> R["checkCreatureUnlocks
+scan 14 creatures"]
     R --> S{Condition Met?}
-    S -- Yes --> T[🐉 Creature Joins Army!\nUnlock Animation]
-    S -- No --> Q
+    S -->|Yes| T["Creature Joins Army!
+Unlock Animation"]
+    S -->|No| Q
 
-    I --> U[checkWeaponUpgrades\nscan 5 weapon lines]
+    I --> U["checkWeaponUpgrades
+scan 5 weapon lines"]
     U --> V{Tier Threshold?}
-    V -- Yes --> W[⚔️ Weapon Drop Modal]
-    V -- No --> Q
+    V -->|Yes| W[Weapon Drop Modal]
+    V -->|No| Q
 
-    I --> X[checkBossProgress\nbossProgress\[id\]++]
+    I --> X["checkBossProgress
+bossProgress++"]
     X --> Y{Boss HP = 0?}
-    Y -- Yes --> Z[💀 Boss Defeated!\nReward Unlocked]
-    Y -- No --> Q
+    Y -->|Yes| Z["Boss Defeated!
+Reward Unlocked"]
+    Y -->|No| Q
 
-    L --> AA[saveState\nlocalStorage]
+    L --> AA["saveState
+localStorage"]
     P --> AA
     T --> AA
     W --> AA
@@ -121,25 +134,42 @@ flowchart TD
 
 ```mermaid
 flowchart LR
-    subgraph DATA["📦 Data Layer (ep1–ep4)"]
-        E1[ep1.js\nRanks · Characters\nDefault State]
-        E2[ep2.js\n14 Creatures\nAbilities · Lore]
-        E3[ep3.js\nWeapons · Bosses\nGates Data]
-        E4[ep4.js\nStory Arcs\nQuests · Lore]
+    subgraph DATA["Data Layer — ep1 to ep4"]
+        E1["ep1.js
+Ranks · Characters
+Default State"]
+        E2["ep2.js
+14 Creatures
+Abilities · Lore"]
+        E3["ep3.js
+Weapons · Bosses
+Gates Data"]
+        E4["ep4.js
+Story Arcs
+Quests · Lore"]
     end
 
-    subgraph LOGIC["⚙️ Logic Layer (ep5–ep6)"]
-        E5[ep5.js\nXP · Leveling\nUnlock Engine]
-        E6[ep6.js\nModals · Notifs\nBoss Modal]
+    subgraph LOGIC["Logic Layer — ep5 to ep6"]
+        E5["ep5.js
+XP · Leveling
+Unlock Engine"]
+        E6["ep6.js
+Modals · Notifications
+Boss Modal"]
     end
 
-    subgraph UI["🖥️ UI Layer (ep7–ep8)"]
-        E7[ep7.js\nHabit Cards\nGate Tracker]
-        E8[ep8.js\nFull Renderer\nAll Tabs + HUD]
+    subgraph UI["UI Layer — ep7 to ep8"]
+        E7["ep7.js
+Habit Cards
+Gate Tracker"]
+        E8["ep8.js
+Full Renderer
+All Tabs + HUD"]
     end
 
-    subgraph STORAGE["💾 Persistence"]
-        LS[(localStorage\nhakaiV2)]
+    subgraph STORAGE["Persistence"]
+        LS[("localStorage
+hakaiV2")]
     end
 
     DATA --> LOGIC
@@ -154,33 +184,33 @@ flowchart LR
 
 ```mermaid
 flowchart TD
-    H1[⚔️ WORKOUT] --> W1[Mjolnir T3]
-    H1 --> W2[Excalibur T4]
-    H1 --> W3[Void Sword T5]
+    H1["WORKOUT"] --> W1["Mjolnir — Tier 3"]
+    H1 --> W2["Excalibur — Tier 4"]
+    H1 --> W3["Void Sword — Tier 5"]
 
-    H2[📚 READ/LEARN] --> W4[Staff of Wisdom T3]
-    H2 --> W5[Demon Staff T4]
-    H2 --> W6[Neil Bow T5]
+    H2["READ / LEARN"] --> W4["Staff of Wisdom — Tier 3"]
+    H2 --> W5["Demon Staff — Tier 4"]
+    H2 --> W6["Neil Bow — Tier 5"]
 
-    H3[💻 BUILD/CODE] --> W7[Trishul T3]
-    H3 --> W8[Gauntlets T4]
+    H3["BUILD / CODE"] --> W7["Trishul — Tier 3"]
+    H3 --> W8["Gauntlets — Tier 4"]
 
-    H4[🧘 MEDITATE] --> W9[Cloak of Shadow T3]
+    H4["MEDITATE"] --> W9["Cloak of Shadow — Tier 3"]
 
-    STREAK3[🔥 3-Day Streak] --> C1[Goblin Scout]
-    STREAK7[🔥 7-Day Streak] --> C2[Direwolf Alpha]
-    WORKOUT5[⚔️ Workout ×5] --> C3[Pack Wolf]
-    DAYS30[📅 30 Full Days] --> C4[Lizardman Shaman]
-    DAYS75[📅 75 Full Days] --> C5[Elder Direwolf]
-    GATE3[🚪 3× Full Gate Clear] --> C6[Cryptid Stalker]
-    LV11[⬆️ Level 11] --> C7[Hobgoblin Warchief]
-    LV41[⬆️ Level 41] --> C8[Elven Shadowblade]
-    LV61[⬆️ Level 61] --> C9[Vampire Lord]
-    LV81[⬆️ Level 81] --> C10[Archangel of Ruin]
-    LV96[⬆️ Level 96] --> C11[Void Cryptid]
-    FLOOR15[🏰 Floor 15] --> C12[Insectoid General]
-    FLOOR20[🏰 Floor 20] --> C13[Demon Knight]
-    FLOOR25[🏰 Floor 25] --> C14[Primordial Demon]
+    STREAK3["3-Day Streak"] --> C1["Goblin Scout"]
+    STREAK7["7-Day Streak"] --> C2["Direwolf Alpha"]
+    WORKOUT5["Workout x5"] --> C3["Pack Wolf"]
+    DAYS30["30 Full Days"] --> C4["Lizardman Shaman"]
+    DAYS75["75 Full Days"] --> C5["Elder Direwolf"]
+    GATE3["3x Full Gate Clear"] --> C6["Cryptid Stalker"]
+    LV11["Level 11"] --> C7["Hobgoblin Warchief"]
+    LV41["Level 41"] --> C8["Elven Shadowblade"]
+    LV61["Level 61"] --> C9["Vampire Lord"]
+    LV81["Level 81"] --> C10["Archangel of Ruin"]
+    LV96["Level 96"] --> C11["Void Cryptid"]
+    FLOOR15["Ascension Floor 15"] --> C12["Insectoid General"]
+    FLOOR20["Ascension Floor 20"] --> C13["Demon Knight"]
+    FLOOR25["Ascension Floor 25"] --> C14["Primordial Demon"]
 ```
 
 ---
@@ -189,24 +219,37 @@ flowchart TD
 
 ```mermaid
 flowchart LR
-    START([🔰 E-RANK\nLevel 1]) --> B1
+    START(["E-RANK
+Level 1"]) --> B1
 
-    B1["🕷️ THE RIFT CRAWLER\nLevel 20 · 15 HP\nThe gap between potential & action"]
-    B1 -- Defeated --> B2
+    B1["THE RIFT CRAWLER
+Level 20 · 15 HP
+The gap between potential and action"]
+    B1 -->|Defeated| B2
 
-    B2["💀 BONE WARLORD KRAGATH\nLevel 40 · 30 HP\nThe weight of past failures"]
-    B2 -- Defeated --> B3
+    B2["BONE WARLORD KRAGATH
+Level 40 · 30 HP
+The weight of past failures"]
+    B2 -->|Defeated| B3
 
-    B3["🐍 SERPENT QUEEN NYX\nLevel 60 · 50 HP\nAncient judgment — are you worthy?"]
-    B3 -- Defeated --> B4
+    B3["SERPENT QUEEN NYX
+Level 60 · 50 HP
+Ancient judgment — are you worthy?"]
+    B3 -->|Defeated| B4
 
-    B4["⬛ THE VOID TITAN\nLevel 80 · 70 HP\nEntropy — the pull of doing nothing"]
-    B4 -- Defeated --> B5
+    B4["THE VOID TITAN
+Level 80 · 70 HP
+Entropy — the pull of doing nothing"]
+    B4 -->|Defeated| B5
 
-    B5["🌌 THE PROTOCOL ITSELF\nLevel 100 · 100 HP\nThe final boss is the system watching you"]
-    B5 -- Defeated --> END
+    B5["THE PROTOCOL ITSELF
+Level 100 · 100 HP
+The final boss is the system watching you"]
+    B5 -->|Defeated| END
 
-    END(["✨ SSS-RANK\nSystem Origin\nTranscendence"])
+    END(["SSS-RANK
+System Origin
+Transcendence"])
 
     style B1 fill:#3b0764,stroke:#9333ea,color:#e9d5ff
     style B2 fill:#450a0a,stroke:#ef4444,color:#fee2e2
@@ -222,20 +265,24 @@ flowchart LR
 
 ```mermaid
 flowchart TD
-    subgraph STATE["🗄️ Game State Object (localStorage)"]
-        S1[level · xp · rank · streak]
-        S2["habitData: { date: { workout, read, code, meditate, plan } }"]
-        S3["unlockedCreatures: [ id, id, ... ]"]
-        S4["weaponTiers: { habitId: tierNumber }"]
-        S5["bossProgress: { bossId: damageDealt }"]
-        S6["bossDefeated: [ id, id, ... ]"]
-        S7["completedGates: { weekId: { days: [...] } }"]
+    subgraph STATE["Game State Object stored in localStorage"]
+        S1["level · xp · rank · streak · playerName"]
+        S2["habitData — date keyed object of completed habits"]
+        S3["unlockedCreatures — array of creature IDs"]
+        S4["weaponTiers — habit ID to tier number map"]
+        S5["bossProgress — boss ID to damage dealt map"]
+        S6["bossDefeated — array of defeated boss IDs"]
+        S7["completedGates — week ID to completed days map"]
     end
 
-    SAVE[saveState\nlocalStorage.setItem] --> STATE
-    STATE --> LOAD[loadState\nlocalStorage.getItem]
-    LOAD --> MERGE[Deep merge with\nDEFAULT_STATE]
-    MERGE --> RENDER[renderAll\nHUD + All Tabs]
+    SAVE["saveState
+localStorage.setItem"] --> STATE
+    STATE --> LOAD["loadState
+localStorage.getItem"]
+    LOAD --> MERGE["Deep merge with
+DEFAULT_STATE"]
+    MERGE --> RENDER["renderAll
+HUD + All Tabs"]
 ```
 
 ### CSS Architecture
