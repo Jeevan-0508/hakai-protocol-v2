@@ -361,6 +361,7 @@ function isDayComplete(ds){return getDayCompletion(ds)>=1;}
 function countHabitCompletions(habitId){let c=0;Object.values(S.habitData).forEach(d=>{if(d[habitId])c++;});return c;}
 function getGateClearCount(){return Object.values(S.completedGates).filter(g=>g.days&&g.days.length>=7).length;}
 
+function getTotalTasksDone(){let n=0;Object.values(S.habitData).forEach(d=>S.habits.forEach(h=>{if(d[h.id])n++;}));return n;}
 function recalcStreak(){
   let streak=0;const d=new Date();
   for(let i=0;i<500;i++){
@@ -473,7 +474,7 @@ function checkDayCompletion(date,completing){
   else if(dc>=5)S.completedGates[wk].rank='A';
   else if(dc>=3)S.completedGates[wk].rank='B';
   else S.completedGates[wk].rank='C';
-  S.totalDaysCompleted=(S.totalDaysCompleted||0)+1;
+  S.totalDaysCompleted=Object.values(S.habitData).filter(d=>S.habits.every(h=>d[h.id])).length;
   saveState();checkCreatureUnlocks();
   showSystemNotif('⚡','DAILY QUEST COMPLETE',`All ${S.habits.length} quests accomplished.\nStreak: ${S.streak} days\n+${S.habits.length*20} XP earned.`);
 }
@@ -921,7 +922,7 @@ function renderQuests(){
   document.getElementById('daily-progress-value').textContent=`${doneCount}/${total} QUESTS — ${pct}% XP`;
   document.getElementById('streak-current').textContent=S.streak;
   document.getElementById('streak-longest').textContent=S.longestStreak;
-  document.getElementById('streak-total-days').textContent=S.totalDaysCompleted||0;
+  document.getElementById('streak-total-days').textContent=S.totalDaysCompleted||0;const ttd=document.getElementById('streak-tasks-done');if(ttd)ttd.textContent=getTotalTasksDone();
 }
 
 function renderAscension(){
@@ -1212,7 +1213,7 @@ function toggleGateDay(dKey, wk){
   else if(dc>=3)gate.rank='B';
   else if(dc>0)gate.rank='C';
   else gate.rank='';
-  S.totalDaysCompleted=Object.values(S.completedGates).reduce((a,g)=>a+(g.days?g.days.length:0),0);
+  S.totalDaysCompleted=Object.values(S.habitData).filter(d=>S.habits.every(h=>d[h.id])).length;
   recalcStreak();saveState();renderGates();renderSidebar();renderHeader();
   if(typeof playUIClick==='function') playUIClick();
   toast(idx>=0 ? '📅 Day removed' : '✅ Day marked complete');
