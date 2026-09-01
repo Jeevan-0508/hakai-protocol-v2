@@ -5,25 +5,14 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>HAKAI PROTOCOL — Dev Mode</title>
   <style>
-    * { margin:0; padding:0; box-sizing:border-box; }
-    body {
-      background: #060610;
-      display: flex; align-items: center; justify-content: center;
-      min-height: 100vh;
-      font-family: 'Orbitron', monospace;
-    }
     @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&display=swap');
-    .wrap { text-align: center; }
-    .title {
-      font-size: 13px; font-weight: 700; letter-spacing: 6px;
-      color: #7c3aed; margin-bottom: 24px;
-      animation: pulse 1.4s ease-in-out infinite;
-    }
-    @keyframes pulse {
-      0%,100% { opacity: .6; } 50% { opacity: 1; }
-    }
-    .icon { font-size: 48px; margin-bottom: 16px; }
-    .sub { font-size: 10px; letter-spacing: 3px; color: #4b5563; margin-top: 8px; }
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { background:#060610; display:flex; align-items:center; justify-content:center; min-height:100vh; font-family:'Orbitron',monospace; }
+    .wrap { text-align:center; }
+    .icon { font-size:52px; margin-bottom:16px; }
+    .title { font-size:13px; font-weight:700; letter-spacing:6px; color:#7c3aed; margin-bottom:8px; animation:pulse 1.2s ease-in-out infinite; }
+    .sub { font-size:9px; letter-spacing:3px; color:#4b5563; }
+    @keyframes pulse { 0%,100%{opacity:.5} 50%{opacity:1} }
   </style>
 </head>
 <body>
@@ -33,8 +22,8 @@
     <div class="sub">REDIRECTING TO HAKAI PROTOCOL</div>
   </div>
   <script>
-    sessionStorage.setItem('hakaiDevMode', '1');
-    setTimeout(() => { window.location.href = '../index.html'; }, 900);
+    sessionStorage.setItem('hakaiDevMode','1');
+    setTimeout(function(){ window.location.href = '../index.html#dev'; }, 900);
   </script>
 </body>
 </html>

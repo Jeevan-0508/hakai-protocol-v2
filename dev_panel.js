@@ -1,10 +1,12 @@
-/* DEV PANEL — activates on localhost OR when launched via /dev/ link */
+/* DEV PANEL — activates on localhost, via /dev/ link, or via #dev hash */
 const _devAllowed = location.hostname === 'localhost' ||
                     location.hostname === '127.0.0.1' ||
+                    location.hash === '#dev' ||
+                    location.href.includes('#dev') ||
                     sessionStorage.getItem('hakaiDevMode') === '1';
 
 if (!_devAllowed) {
-  /* Silent in production — visit /dev/ subfolder to activate */
+  /* Silent in production */
 } else {
 /* =========================================================
    HAKAI PROTOCOL — DEV SANDBOX PANEL
