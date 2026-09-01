@@ -429,7 +429,7 @@ function toggleHabit(habitId){
   const wasDone=!!S.habitData[date][habitId];
   const habit=S.habits.find(h=>h.id===habitId);if(!habit)return;
   if(wasDone){
-    S.habitData[date][habitId]=false;
+    S.habitData[date][habitId]=false;if(typeof playHabitUntick==='function')playHabitUntick();
     S.xp=Math.max(0,S.xp-habit.xp);S.totalXPEarned=Math.max(0,S.totalXPEarned-habit.xp);
     S.stats[habit.stat]=Math.max(1,(S.stats[habit.stat]||1)-1);
   }else{
@@ -473,7 +473,7 @@ function checkDayCompletion(date,completing){
 }
 
 // Quest management
-function addCustomHabit(){
+function addCustomHabit(){if(typeof playUIAddHabit==='function')playUIAddHabit();
   const name=document.getElementById('new-habit-name').value.trim().toUpperCase();
   const stat=document.getElementById('new-habit-stat').value;
   const icon=document.getElementById('new-habit-icon').value;
@@ -483,7 +483,7 @@ function addCustomHabit(){
   S.habits.push({id,name,desc:'Custom quest.',icon,stat,xp:20,isDefault:false});
   saveState();renderQuests();renderQuestMgmt();toast('QUEST ADDED: '+name);
 }
-function removeHabit(habitId){
+function removeHabit(habitId){if(typeof playUIRemove==='function')playUIRemove();
   if(S.habits.length<=1){toast('CANNOT REMOVE — Minimum 1 quest required.');return;}
   if(!confirm('Remove this quest? Progress for this quest will be preserved in history.'))return;
   S.habits=S.habits.filter(h=>h.id!==habitId);
@@ -557,13 +557,13 @@ function showWeaponDrop(weapon){
   document.getElementById('wd-skill-desc').textContent=weapon.skillDesc;
   bg.classList.add('open');
 }
-function closeWeaponDrop(){document.getElementById('weapon-drop-bg').classList.remove('open');}
+function closeWeaponDrop(){if(typeof playUIClose==='function')playUIClose();document.getElementById('weapon-drop-bg').classList.remove('open');}
 function showBossDefeated(boss){
   showSystemNotif('💀','BOSS DEFEATED',`${boss.icon} ${boss.name} has been vanquished.\n${boss.reward}`);
 }
 
 let openCreatureData=null;
-function openCreatureModal(creatureId){
+function openCreatureModal(creatureId){if(typeof playUIOpen==='function')playUIOpen();
   const c=CREATURES.find(x=>x.id===creatureId);if(!c)return;
   openCreatureData=c;
   const isUnlocked=S.unlockedCreatures.includes(c.id);
@@ -634,7 +634,7 @@ function openCreatureModal(creatureId){
 
   bg.classList.add('open');
 }
-function closeCreatureModal(){document.getElementById('creature-modal-bg').classList.remove('open');}
+function closeCreatureModal(){if(typeof playUIClose==='function')playUIClose();document.getElementById('creature-modal-bg').classList.remove('open');}
 
 function toast(msg){
   const e=document.querySelector('.toast');if(e)e.remove();
@@ -643,7 +643,7 @@ function toast(msg){
 }
 
 /* ── BOSS MODAL ── */
-function openBossModal(bossId){
+function openBossModal(bossId){if(typeof playUIOpen==='function')playUIOpen();
   const boss=BOSSES.find(b=>b.id===bossId);if(!boss)return;
   const isDefeated=S.bossDefeated.includes(boss.id);
   const isActive=S.level>=boss.level;
@@ -765,7 +765,7 @@ function openBossModal(bossId){
 
   bg.style.display='flex';
 }
-function closeBossModal(){
+function closeBossModal(){if(typeof playUIClose==='function')playUIClose();
   const bg=document.getElementById('boss-modal-bg');
   if(bg) bg.style.display='none';
 }
@@ -877,7 +877,7 @@ function renderAscension(){
     </div>`;
   }
 }
-function openStory(idx){
+function openStory(idx){if(typeof playUIStory==='function')playUIStory();
   const node=STORY[idx];
   document.getElementById('story-modal-floor').textContent='FLOOR '+String(idx+1).padStart(2,'0');
   document.getElementById('story-modal-arc').textContent=node.arc.toUpperCase();
@@ -885,10 +885,10 @@ function openStory(idx){
   document.getElementById('story-modal-text').textContent=node.text;
   document.getElementById('story-modal-bg').classList.add('open');
 }
-function closeStory(){document.getElementById('story-modal-bg').classList.remove('open');}
+function closeStory(){if(typeof playUIClose==='function')playUIClose();document.getElementById('story-modal-bg').classList.remove('open');}
 // RENDER: ARMY, ARMORY, BOSSES, GATES, CALENDAR, TABS, INTRO, INIT
 let armySubView='all';
-function switchArmyView(view){
+function switchArmyView(view){if(typeof playUINav==='function')playUINav();
   armySubView=view;
   document.querySelectorAll('.army-sub-btn').forEach(b=>b.classList.remove('active'));
   document.querySelector('[data-army="'+view+'"]').classList.add('active');
@@ -1207,7 +1207,7 @@ function renderAll(){
   if(id==='tab-gates')renderGates();
   if(id==='tab-calendar')renderCalendar();
 }
-function switchTab(tabId){
+function switchTab(tabId){if(typeof playUINav==='function')playUINav();
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
   document.querySelector('[data-tab="'+tabId+'"]').classList.add('active');
@@ -1264,7 +1264,7 @@ function showGame(){
   document.getElementById('screen-game').classList.add('visible');
   checkCreatureUnlocks();renderAll();switchTab('tab-quests');
 }
-function exportProgress(){
+function exportProgress(){if(typeof playUISuccess==='function')playUISuccess();
   const blob=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);
   a.download='hakai_v2_backup_'+todayKey()+'.json';a.click();toast('PROGRESS EXPORTED');

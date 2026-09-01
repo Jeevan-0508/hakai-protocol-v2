@@ -31,7 +31,7 @@
   <div class="intro-subtitle">V 2 . 0 &nbsp;&nbsp; HUNTER SYSTEM</div>
   <div class="intro-lines" id="intro-lines"></div>
   <div class="intro-btn-row" id="intro-btn-row" style="opacity:0">
-    <button class="intro-btn" onclick="nextIntroLine()">[ CONTINUE ]</button>
+    <button class="intro-btn" onclick="if(typeof playUIClick==='function')playUIClick();nextIntroLine()">[ CONTINUE ]</button>
     <button class="intro-btn skip" onclick="skipIntro()">SKIP</button>
   </div>
 </div>
@@ -43,7 +43,7 @@
   <div class="select-tag">[ HUNTER REGISTRATION ]</div>
   <div class="select-title">SELECT YOUR HUNTER</div>
   <div class="select-grid">
-    <div class="char-card" onclick="selectChar('STRIKER')">
+    <div class="char-card" onclick="if(typeof playUISelect==='function')playUISelect();selectChar('STRIKER')">
       <img src="striker_jk.png" alt="Striker">
       <div class="char-info">
         <div class="char-name">STRIKER</div>
@@ -56,7 +56,7 @@
         <div class="char-select-label">[ SELECT HUNTER ]</div>
       </div>
     </div>
-    <div class="char-card" onclick="selectChar('CATH_GEMS')">
+    <div class="char-card" onclick="if(typeof playUISelect==='function')playUISelect();selectChar('CATH_GEMS')">
       <img src="cath_gems.png" alt="Cath Gems">
       <div class="char-info">
         <div class="char-name">CATH GEMS</div>
