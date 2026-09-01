@@ -4,6 +4,8 @@
    ============================================================ */
 (function(){
   let ctx = null;
+  // Clear stale mute state — default to unmuted on first load
+  if(localStorage.getItem('hakaiMuted')===null) localStorage.setItem('hakaiMuted','0');
   let muted = localStorage.getItem('hakaiMuted') === '1';
 
   function getCtx(){
@@ -131,6 +133,15 @@
     );
   };
 
+
+  /* ── Unlock AudioContext on first user interaction (Chrome autoplay policy) ── */
+  function unlockAudio(){
+    getCtx();
+    document.removeEventListener('click', unlockAudio);
+    document.removeEventListener('touchend', unlockAudio);
+  }
+  document.addEventListener('click', unlockAudio);
+  document.addEventListener('touchend', unlockAudio);
   /* ── Inject mute button into HUD ── */
   document.addEventListener('DOMContentLoaded', () => {
     const btn = document.createElement('button');

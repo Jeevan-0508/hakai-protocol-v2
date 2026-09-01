@@ -436,7 +436,7 @@ function toggleHabit(habitId){
     S.habitData[date][habitId]=true;
     S.xp+=habit.xp;S.totalXPEarned+=habit.xp;
     S.stats[habit.stat]=(S.stats[habit.stat]||1)+1;
-    checkWeaponUpgrades();checkCreatureUnlocks();checkBossProgress();
+    checkWeaponUpgrades();checkCreatureUnlocks();checkBossProgress();if(typeof playHabitComplete==='function')playHabitComplete();
   }
   saveState();checkLevelUp();checkDayCompletion(date,!wasDone);renderAll();
   const card=document.getElementById('card-'+habitId);
