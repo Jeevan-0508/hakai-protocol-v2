@@ -177,6 +177,7 @@
         <button class="tab-btn"        data-tab="tab-bosses"    onclick="switchTab('tab-bosses')">BOSSES</button>
         <button class="tab-btn"        data-tab="tab-gates"     onclick="switchTab('tab-gates')">GATES</button>
         <button class="tab-btn"        data-tab="tab-calendar"  onclick="switchTab('tab-calendar')">RECORDS</button>
+        <button class="tab-btn" data-tab="tab-achievements" onclick="switchTab('tab-achievements')">ACHIEVEMENTS</button>
         <button class="tab-btn"        data-tab="tab-settings"  onclick="switchTab('tab-settings')">SETTINGS</button>
       </nav>
 
@@ -310,6 +311,10 @@
 
         <div class="calendar-section">
           <div class="calendar-label">ACTIVITY — LAST 90 DAYS</div>
+          <div class="radar-wrap" style="margin-bottom:16px">
+            <h3 class="radar-title">STAT PROFILE</h3>
+            <canvas id="stats-radar" width="280" height="280"></canvas>
+          </div>
           <div class="heatmap-grid" id="heatmap-grid"></div>
           <div class="heatmap-legend">
             <span class="heatmap-legend-text">LESS</span>
@@ -339,6 +344,16 @@
             <tr><td>Story Floors Unlocked</td><td class="stat-highlight" id="cal-floors">0/30</td></tr>
           </tbody>
         </table>
+      </section>
+
+      <!-- ─── ACHIEVEMENTS TAB ─── -->
+      <section class="tab-panel" id="tab-achievements">
+        <h2 class="tab-title">ACHIEVEMENTS</h2>
+        <p class="tab-sub">Milestones unlocked through discipline.</p>
+        <div class="ach-header">
+          <span id="ach-count" class="ach-count-label">0/15 UNLOCKED</span>
+        </div>
+        <div id="achievements-grid" class="achievements-grid"></div>
       </section>
 
       <!-- ─── SETTINGS TAB ─── -->
@@ -486,5 +501,35 @@
     });
   }
 </script>
+
+  <!-- Day Complete Overlay -->
+  <div class="day-complete-overlay" id="day-complete-overlay" onclick="closeDayComplete()">
+    <div class="dc-box">
+      <div class="dc-title">⚡ DAY COMPLETE</div>
+      <div class="dc-subtitle">ALL QUESTS CLEARED</div>
+      <div class="dc-stat" id="dc-streak"></div>
+      <div class="dc-stat highlight" id="dc-xp"></div>
+      <div class="dc-bonus" id="dc-mult"></div>
+      <div class="dc-bonus" id="dc-creature"></div>
+      <div class="dc-hint">[ TAP TO CLOSE ]</div>
+    </div>
+  </div>
+
+  <!-- Weekly Recap Overlay -->
+  <div class="weekly-recap-overlay" id="weekly-recap-overlay" onclick="closeWeeklyRecap()">
+    <div class="wr-box">
+      <div class="wr-title">📊 WEEKLY RECAP</div>
+      <div class="wr-week" id="wr-week"></div>
+      <div class="wr-grid">
+        <div class="wr-stat"><span id="wr-days"></span></div>
+        <div class="wr-stat"><span id="wr-tasks"></span></div>
+        <div class="wr-stat rank" id="wr-rank"></div>
+        <div class="wr-stat best"><span id="wr-best"></span></div>
+        <div class="wr-stat worst"><span id="wr-worst"></span></div>
+      </div>
+      <div class="dc-hint">[ TAP TO CLOSE ]</div>
+    </div>
+  </div>
+
 </body>
 </html>

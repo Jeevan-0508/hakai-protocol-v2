@@ -327,6 +327,25 @@ const STORY=[
   {arc:'Transcendence',title:'The Final Gate',      text:'There is no final gate. Every level is a gate. Every day is a choice. The protocol does not end — it deepens.'},
   {arc:'Transcendence',title:'You Become the System',text:'This is not an ending. There are no endings in exponential systems. You stand at a new beginning with the accumulated force of everything you chose to complete.'},
 ];
+
+// ── ACHIEVEMENTS ──────────────────────────────────────────
+const ACHIEVEMENTS=[
+  {id:'first_habit', icon:'⚔️', name:'FIRST STRIKE',    desc:'Complete your first habit',           condition:()=>getTotalTasksDone()>=1,                              xp:50},
+  {id:'first_day',   icon:'🌟', name:'DAY ONE',          desc:'Complete all habits in a single day', condition:()=>Object.values(S.habitData).some(d=>S.habits.length>0&&S.habits.every(h=>d[h.id])), xp:100},
+  {id:'streak_3',    icon:'🔥', name:'KINDLING',         desc:'Reach a 3-day streak',                condition:()=>S.streak>=3,                                         xp:150},
+  {id:'streak_7',    icon:'🔥', name:'WEEK OF FIRE',     desc:'Reach a 7-day streak',                condition:()=>S.streak>=7,                                         xp:300},
+  {id:'streak_14',   icon:'🔥', name:'FORTNIGHT FLAME',  desc:'Reach a 14-day streak',               condition:()=>S.streak>=14,                                        xp:500},
+  {id:'streak_30',   icon:'💎', name:'MONTHLY LEGEND',   desc:'Reach a 30-day streak',               condition:()=>S.streak>=30,                                        xp:1000},
+  {id:'level_10',    icon:'⬆️', name:'AWAKENED',         desc:'Reach Level 10',                      condition:()=>S.level>=10,                                         xp:200},
+  {id:'level_25',    icon:'⬆️', name:'HUNTER',           desc:'Reach Level 25',                      condition:()=>S.level>=25,                                         xp:400},
+  {id:'level_50',    icon:'⬆️', name:'ELITE',            desc:'Reach Level 50',                      condition:()=>S.level>=50,                                         xp:800},
+  {id:'srank',       icon:'🏆', name:'S-RANK HUNTER',    desc:'Achieve S-Rank status',               condition:()=>getRank(S.level).rank==='S',                          xp:600},
+  {id:'gate_clear',  icon:'🚪', name:'GATE KEEPER',      desc:'Clear a full gate (7/7 days)',         condition:()=>getGateClearCount()>=1,                              xp:300},
+  {id:'tasks_100',   icon:'💯', name:'CENTURION',        desc:'Complete 100 total tasks',             condition:()=>getTotalTasksDone()>=100,                            xp:500},
+  {id:'army_3',      icon:'🐉', name:'COMMANDER',        desc:'Unlock 3 creatures',                  condition:()=>S.unlockedCreatures.length>=3,                       xp:250},
+  {id:'boss_1',      icon:'💀', name:'BOSS SLAYER',      desc:'Defeat your first boss',              condition:()=>S.bossDefeated.length>=1,                            xp:400},
+  {id:'weapon_t3',   icon:'🗡️', name:'MASTER CRAFTER',  desc:'Upgrade any weapon to Tier 3',        condition:()=>Object.values(S.weaponTiers).some(t=>t>=3),          xp:300},
+];
 // STATE + MATH + HABIT LOGIC
 let S={
   playerName:null,level:1,xp:0,
@@ -336,6 +355,7 @@ let S={
   habitData:{},storyProgress:0,unlockedCreatures:[],
   weaponTiers:{},completedGates:{},totalXPEarned:0,
   bossProgress:{},bossDefeated:[],
+  achievements:[],lastRecapWeek:null,
 };
 function loadState(){const r=localStorage.getItem('hakai_v2');if(r){try{const s=JSON.parse(r);S={...S,...s};if(!S.habits||!S.habits.length)S.habits=DEFAULT_HABITS.map(h=>({...h}));}catch(e){}}}
 let selectedQuestDate=todayKey();
@@ -362,6 +382,45 @@ function countHabitCompletions(habitId){let c=0;Object.values(S.habitData).forEa
 function getGateClearCount(){return Object.values(S.completedGates).filter(g=>g.days&&g.days.length>=7).length;}
 
 function getTotalTasksDone(){let n=0;Object.values(S.habitData).forEach(d=>S.habits.forEach(h=>{if(d[h.id])n++;}));return n;}
+
+function getHabitStreak(habitId){
+  const today=todayKey();let streak=0;
+  const d=new Date(today+'T00:00:00');
+  for(let i=0;i<365;i++){
+    const dKey=d.toISOString().split('T')[0];
+    if(!(S.habitData[dKey]&&S.habitData[dKey][habitId]))break;
+    streak++;d.setDate(d.getDate()-1);
+  }
+  return streak;
+}
+function getStreakMultiplier(){
+  if(S.streak>=30)return 2.0;
+  if(S.streak>=14)return 1.5;
+  if(S.streak>=7) return 1.25;
+  if(S.streak>=3) return 1.1;
+  return 1.0;
+}
+function getCreatureXPBonus(){
+  const n=S.unlockedCreatures.length;
+  if(n>=CREATURES.length)return 0.15;
+  if(n>=5)return 0.08;if(n>=3)return 0.05;if(n>=1)return 0.02;
+  return 0;
+}
+function checkAchievements(){
+  const newUnlocks=[];
+  ACHIEVEMENTS.forEach(a=>{
+    if(!S.achievements.includes(a.id)&&a.condition()){
+      S.achievements.push(a.id);newUnlocks.push(a);
+    }
+  });
+  if(newUnlocks.length){
+    saveState();
+    newUnlocks.forEach((a,i)=>setTimeout(()=>{
+      showSystemNotif('🏆','ACHIEVEMENT UNLOCKED',a.icon+' '+a.name+'\n'+a.desc+'\n+'+a.xp+' BONUS XP');
+      S.xp+=a.xp;S.totalXPEarned+=a.xp;saveState();
+    },i*2500));
+  }
+}
 function recalcStreak(){
   let streak=0;const d=new Date();
   for(let i=0;i<500;i++){
@@ -441,9 +500,11 @@ function toggleHabit(habitId){
     S.stats[habit.stat]=Math.max(1,(S.stats[habit.stat]||1)-1);
   }else{
     S.habitData[date][habitId]=true;
-    S.xp+=habit.xp;S.totalXPEarned+=habit.xp;
+    const mult=getStreakMultiplier();const crBonus=getCreatureXPBonus();
+    const earnedXP=Math.round(habit.xp*mult*(1+crBonus));
+    S.xp+=earnedXP;S.totalXPEarned+=earnedXP;
     S.stats[habit.stat]=(S.stats[habit.stat]||1)+1;
-    checkWeaponUpgrades();checkCreatureUnlocks();checkBossProgress();if(typeof playHabitComplete==='function')playHabitComplete();
+    checkWeaponUpgrades();checkCreatureUnlocks();checkBossProgress();checkAchievements();if(typeof playHabitComplete==='function')playHabitComplete();
   }
   saveState();checkLevelUp();checkDayCompletion(date,!wasDone);renderAll();
   const card=document.getElementById('card-'+habitId);
@@ -460,7 +521,7 @@ function checkLevelUp(){
     const newRank=getRank(S.level).rank;
     if(newRank!==oldRank)setTimeout(()=>triggerRankUp(oldRank,newRank),1800);
   }
-  if(leveled){if(typeof playLevelUp==='function')playLevelUp();triggerLevelUp();checkCreatureUnlocks();}
+  if(leveled){if(typeof playLevelUp==='function')playLevelUp();triggerLevelUp();checkCreatureUnlocks();checkAchievements();}
 }
 
 function checkDayCompletion(date,completing){
@@ -475,6 +536,7 @@ function checkDayCompletion(date,completing){
   else if(dc>=3)S.completedGates[wk].rank='B';
   else S.completedGates[wk].rank='C';
   S.totalDaysCompleted=Object.values(S.habitData).filter(d=>S.habits.every(h=>d[h.id])).length;
+  if(completing)setTimeout(()=>showDayComplete(date),400);
   saveState();checkCreatureUnlocks();
   showSystemNotif('⚡','DAILY QUEST COMPLETE',`All ${S.habits.length} quests accomplished.\nStreak: ${S.streak} days\n+${S.habits.length*20} XP earned.`);
 }
@@ -906,8 +968,10 @@ function renderQuests(){
       </div>
       <div class="quest-reward">
         <span class="reward-pill">+${h.xp} XP</span>
+        ${getStreakMultiplier()>1?`<span class="reward-pill streak-mult">${getStreakMultiplier()}x</span>`:''}
         <span class="reward-pill">+1 ${h.stat}</span>
         ${countHabitCompletions(h.id)?`<span class="reward-pill">${countHabitCompletions(h.id)}x done</span>`:''}
+        ${(()=>{const hs=getHabitStreak(h.id);return hs>0?`<span class="reward-pill habit-streak">🔥 ${hs}</span>`:'';})()}
       </div>
       <button class="quest-btn ${done?'done-btn':''} ${isFuture?'future-btn':''}"
         ${isFuture?'disabled':''} onclick="${isFuture?'':('toggleHabit(\''+h.id+'\')')}">
@@ -1298,6 +1362,126 @@ function toggleYearSection(yr){
   if(typeof playUINav==='function')playUINav();
 }
 
+
+function drawRadarChart(){
+  const canvas=document.getElementById('stats-radar');
+  if(!canvas||!canvas.getContext)return;
+  const ctx=canvas.getContext('2d');
+  const W=canvas.width,H=canvas.height,cx=W/2,cy=H/2,r=Math.min(W,H)/2-36;
+  const stats=['STR','INT','AGI','VIT','SEN'];
+  const colors=['#ef4444','#3b82f6','#22c55e','#a855f7','#f59e0b'];
+  const maxVal=Math.max(10,...stats.map(s=>S.stats[s]||1));
+  ctx.clearRect(0,0,W,H);
+  // Grid rings
+  for(let ring=1;ring<=5;ring++){
+    ctx.beginPath();
+    stats.forEach((s,i)=>{
+      const angle=(Math.PI*2*i/stats.length)-Math.PI/2;
+      const rr=r*(ring/5);
+      const x=cx+Math.cos(angle)*rr,y=cy+Math.sin(angle)*rr;
+      if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+    });
+    ctx.closePath();ctx.strokeStyle='rgba(139,92,246,0.15)';ctx.lineWidth=1;ctx.stroke();
+  }
+  // Axes
+  stats.forEach((s,i)=>{
+    const angle=(Math.PI*2*i/stats.length)-Math.PI/2;
+    ctx.beginPath();ctx.moveTo(cx,cy);
+    ctx.lineTo(cx+Math.cos(angle)*r,cy+Math.sin(angle)*r);
+    ctx.strokeStyle='rgba(139,92,246,0.25)';ctx.lineWidth=1;ctx.stroke();
+  });
+  // Filled polygon
+  ctx.beginPath();
+  stats.forEach((s,i)=>{
+    const val=Math.min(S.stats[s]||1,maxVal);
+    const angle=(Math.PI*2*i/stats.length)-Math.PI/2;
+    const rr=r*(val/maxVal);
+    const x=cx+Math.cos(angle)*rr,y=cy+Math.sin(angle)*rr;
+    if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);
+  });
+  ctx.closePath();
+  ctx.fillStyle='rgba(124,58,237,0.18)';ctx.fill();
+  ctx.strokeStyle='#7c3aed';ctx.lineWidth=2;ctx.stroke();
+  // Points + labels
+  stats.forEach((s,i)=>{
+    const val=Math.min(S.stats[s]||1,maxVal);
+    const angle=(Math.PI*2*i/stats.length)-Math.PI/2;
+    const rr=r*(val/maxVal);
+    const x=cx+Math.cos(angle)*rr,y=cy+Math.sin(angle)*rr;
+    ctx.beginPath();ctx.arc(x,y,5,0,Math.PI*2);
+    ctx.fillStyle=colors[i];ctx.fill();
+    const lx=cx+Math.cos(angle)*(r+24),ly=cy+Math.sin(angle)*(r+24);
+    ctx.fillStyle=colors[i];ctx.font='bold 11px monospace';
+    ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(s+' '+(S.stats[s]||1),lx,ly);
+  });
+}
+function renderAchievements(){
+  const c=document.getElementById('achievements-grid');if(!c)return;
+  const count=S.achievements.length;
+  const el=document.getElementById('ach-count');
+  if(el)el.textContent=count+'/'+ACHIEVEMENTS.length+' UNLOCKED';
+  c.innerHTML='';
+  ACHIEVEMENTS.forEach(a=>{
+    const unlocked=S.achievements.includes(a.id);
+    c.innerHTML+=`<div class="ach-card${unlocked?' unlocked':''}">
+      <div class="ach-icon">${unlocked?a.icon:'🔒'}</div>
+      <div class="ach-body">
+        <div class="ach-name">${a.name}</div>
+        <div class="ach-desc">${a.desc}</div>
+        ${unlocked?`<div class="ach-xp">+${a.xp} XP REWARD</div>`:''}
+      </div>
+      ${unlocked?'<div class="ach-badge">✓</div>':''}
+    </div>`;
+  });
+}
+function showDayComplete(date){
+  if(date!==todayKey())return;
+  const o=document.getElementById('day-complete-overlay');if(!o)return;
+  const data=S.habitData[date]||{};
+  const xpBase=S.habits.reduce((s,h)=>s+(data[h.id]?h.xp:0),0);
+  const mult=getStreakMultiplier();const crB=getCreatureXPBonus();
+  const xpTotal=Math.round(xpBase*mult*(1+crB));
+  document.getElementById('dc-streak').textContent=S.streak+' DAY STREAK';
+  document.getElementById('dc-xp').textContent='+'+xpTotal+' XP EARNED';
+  document.getElementById('dc-mult').textContent=mult>1?'🔥 '+mult+'x STREAK BONUS ACTIVE':'';
+  document.getElementById('dc-creature').textContent=crB>0?'🐉 +'+(Math.round(crB*100))+'% ARMY BONUS':'';
+  o.classList.add('open');
+  if(typeof playLevelUp==='function')playLevelUp();
+  setTimeout(()=>closeDayComplete(),5000);
+}
+function closeDayComplete(){const o=document.getElementById('day-complete-overlay');if(o)o.classList.remove('open');}
+function checkWeeklyRecap(){
+  const today=todayKey();
+  const d=new Date(today+'T00:00:00');d.setDate(d.getDate()-7);
+  const lastWeek=getWeekKey(d.toISOString().split('T')[0]);
+  if(S.lastRecapWeek===lastWeek)return;
+  const gate=S.completedGates[lastWeek];
+  if(!gate||!gate.days||gate.days.length===0){S.lastRecapWeek=lastWeek;saveState();return;}
+  S.lastRecapWeek=lastWeek;saveState();
+  const daysDone=gate.days.length;
+  const tasksTotal=gate.days.reduce((sum,dKey)=>{
+    const dd=S.habitData[dKey]||{};
+    return sum+S.habits.filter(h=>dd[h.id]).length;
+  },0);
+  const scores={};S.habits.forEach(h=>{scores[h.id]=gate.days.filter(dKey=>S.habitData[dKey]&&S.habitData[dKey][h.id]).length;});
+  const sorted=Object.entries(scores).sort((a,b)=>b[1]-a[1]);
+  const best=S.habits.find(h=>h.id===sorted[0][0]);
+  const worst=S.habits.find(h=>h.id===sorted[sorted.length-1][0]);
+  setTimeout(()=>showWeeklyRecap(lastWeek,daysDone,tasksTotal,best,worst,gate.rank),1200);
+}
+function showWeeklyRecap(week,daysDone,tasks,best,worst,rank){
+  const o=document.getElementById('weekly-recap-overlay');if(!o)return;
+  document.getElementById('wr-week').textContent='WEEK '+week;
+  document.getElementById('wr-days').textContent=daysDone+'/7 days completed';
+  document.getElementById('wr-tasks').textContent=tasks+' total tasks done';
+  document.getElementById('wr-rank').textContent=rank?rank+'-RANK GATE':'GATE INCOMPLETE';
+  document.getElementById('wr-best').textContent=best?best.icon+' '+best.name+' (best)':'-';
+  document.getElementById('wr-worst').textContent=worst?worst.icon+' '+worst.name+' (needs work)':'-';
+  o.classList.add('open');
+  if(typeof playUISuccess==='function')playUISuccess();
+}
+function closeWeeklyRecap(){const o=document.getElementById('weekly-recap-overlay');if(o)o.classList.remove('open');}
 function renderAll(){
   renderHeader();renderSidebar();
   const active=document.querySelector('.tab-panel.active');
@@ -1308,7 +1492,7 @@ function renderAll(){
   if(id==='tab-armory')renderArmory();
   if(id==='tab-bosses')renderBosses();
   if(id==='tab-gates')renderGates();
-  if(id==='tab-calendar')renderCalendar();
+  if(id==='tab-calendar')renderCalendar();if(id==='tab-achievements')renderAchievements();
 }
 function switchTab(tabId){if(typeof playUINav==='function')playUINav();
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
@@ -1320,7 +1504,7 @@ function switchTab(tabId){if(typeof playUINav==='function')playUINav();
   if(tabId==='tab-army'){renderBestiary();switchArmyView('all');}
   if(tabId==='tab-armory')renderArmory();
   if(tabId==='tab-bosses')renderBosses();
-  if(tabId==='tab-gates')renderGates();
+  if(tabId==='tab-gates')renderGates();if(tabId==='tab-achievements')renderAchievements();
   if(tabId==='tab-calendar')renderCalendar();
 }
 
