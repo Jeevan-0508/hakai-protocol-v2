@@ -184,7 +184,7 @@ body{background:var(--bg-deep);color:var(--text-primary);font-family:'Rajdhani',
 .quest-meta{flex:1;}
 .quest-name{font-family:'Orbitron',sans-serif;font-size:.8rem;font-weight:600;letter-spacing:2px;
   color:var(--text-primary);margin-bottom:3px;}
-.quest-card.done .quest-name{color:var(--cyan);}
+.quest-card.done .quest-name{color:var(--cyan);}.quest-card.done .quest-meta{padding-right:90px;}
 .quest-desc{font-size:.78rem;color:var(--text-dim);line-height:1.4;}
 .quest-card.done .quest-desc{color:rgba(34,211,238,.6);}
 .quest-status-badge{position:absolute;top:14px;right:14px;font-family:'Orbitron',sans-serif;
