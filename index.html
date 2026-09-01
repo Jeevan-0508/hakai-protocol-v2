@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>HAKAI PROTOCOL V2</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- BG LAYERS -->
+<div class="game-bg"></div>
+<div class="game-scanlines"></div>
+
+<!-- ═══════════════════════════════════════════════════════
+     INTRO SCREEN
+     ═══════════════════════════════════════════════════════ -->
+<div id="screen-intro">
+  <div class="intro-system-tag">[ SYSTEM ALERT ]</div>
+  <div class="intro-title">HAKAI PROTOCOL</div>
+  <div class="intro-subtitle">V 2 . 0 &nbsp;&nbsp; HUNTER SYSTEM</div>
+  <div class="intro-lines" id="intro-lines"></div>
+  <div class="intro-btn-row" id="intro-btn-row" style="opacity:0">
+    <button class="intro-btn" onclick="nextIntroLine()">[ CONTINUE ]</button>
+    <button class="intro-btn skip" onclick="skipIntro()">SKIP</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     CHARACTER SELECT
+     ═══════════════════════════════════════════════════════ -->
+<div id="screen-select">
+  <div class="select-tag">[ HUNTER REGISTRATION ]</div>
+  <div class="select-title">SELECT YOUR HUNTER</div>
+  <div class="select-grid">
+    <div class="char-card" onclick="selectChar('STRIKER')">
+      <img src="striker_jk.png" alt="Striker">
+      <div class="char-info">
+        <div class="char-name">STRIKER</div>
+        <div class="char-class">Shadow Hunter &nbsp;|&nbsp; Born for the void</div>
+        <div class="char-stats">
+          <span class="char-stat-pill">STR ●●●●○</span>
+          <span class="char-stat-pill">AGI ●●●○○</span>
+          <span class="char-stat-pill">INT ●●○○○</span>
+        </div>
+        <div class="char-select-label">[ SELECT HUNTER ]</div>
+      </div>
+    </div>
+    <div class="char-card" onclick="selectChar('CATH_GEMS')">
+      <img src="cath_gems.png" alt="Cath Gems">
+      <div class="char-info">
+        <div class="char-name">CATH GEMS</div>
+        <div class="char-class">Arcane Walker &nbsp;|&nbsp; The system chose you</div>
+        <div class="char-stats">
+          <span class="char-stat-pill">INT ●●●●○</span>
+          <span class="char-stat-pill">SEN ●●●○○</span>
+          <span class="char-stat-pill">VIT ●●○○○</span>
+        </div>
+        <div class="char-select-label">[ SELECT HUNTER ]</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     MAIN GAME
+     ═══════════════════════════════════════════════════════ -->
+<div id="screen-game">
+
+  <!-- HEADER -->
+  <header class="game-header">
+    <span class="header-logo">HAKAI&nbsp;<span>PROTOCOL</span></span>
+    <div class="header-divider"></div>
+    <div class="header-stat">
+      <span class="label">HUNTER</span>
+      <span class="value" id="header-level">LV.1</span>
+    </div>
+    <div class="header-divider"></div>
+    <div class="header-stat">
+      <span class="header-streak" id="header-streak">0 DAY STREAK</span>
+    </div>
+    <div class="header-spacer"></div>
+    <span class="header-date" id="header-date"></span>
+    <div class="header-divider"></div>
+    <span class="header-rank-badge" id="header-rank-badge">E-RANK</span>
+  </header>
+
+  <!-- BODY -->
+  <div class="game-body">
+
+    <!-- SIDEBAR -->
+    <aside class="game-sidebar">
+      <img class="sidebar-avatar" id="sidebar-avatar" src="" alt="Hunter">
+
+      <div>
+        <span class="sidebar-rank-badge" id="sidebar-rank-badge" style="color:#94a3b8;border-color:#94a3b840">E-RANK</span>
+      </div>
+      <div>
+        <div class="sidebar-name" id="sidebar-name">HUNTER</div>
+        <div class="sidebar-class" id="sidebar-class">Shadow Initiate</div>
+      </div>
+
+      <div>
+        <div class="sidebar-level-row">
+          <span class="sidebar-level" id="sidebar-level">LV. 1</span>
+          <span class="sidebar-xp-label" id="sidebar-xp-label">0 / 100 XP</span>
+        </div>
+        <div class="xp-bar-wrap">
+          <div class="xp-bar-fill" id="sidebar-xp-fill" style="width:0%"></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="sidebar-section-label">HUNTER STATS</div>
+        <div class="stat-row stat-STR">
+          <span class="stat-label">STR</span>
+          <div class="stat-bar-wrap"><div class="stat-bar-fill" id="stat-bar-STR" style="width:10%"></div></div>
+          <span class="stat-value" id="stat-val-STR">1</span>
+        </div>
+        <div class="stat-row stat-INT">
+          <span class="stat-label">INT</span>
+          <div class="stat-bar-wrap"><div class="stat-bar-fill" id="stat-bar-INT" style="width:10%"></div></div>
+          <span class="stat-value" id="stat-val-INT">1</span>
+        </div>
+        <div class="stat-row stat-AGI">
+          <span class="stat-label">AGI</span>
+          <div class="stat-bar-wrap"><div class="stat-bar-fill" id="stat-bar-AGI" style="width:10%"></div></div>
+          <span class="stat-value" id="stat-val-AGI">1</span>
+        </div>
+        <div class="stat-row stat-VIT">
+          <span class="stat-label">VIT</span>
+          <div class="stat-bar-wrap"><div class="stat-bar-fill" id="stat-bar-VIT" style="width:10%"></div></div>
+          <span class="stat-value" id="stat-val-VIT">1</span>
+        </div>
+        <div class="stat-row stat-SEN">
+          <span class="stat-label">SEN</span>
+          <div class="stat-bar-wrap"><div class="stat-bar-fill" id="stat-bar-SEN" style="width:10%"></div></div>
+          <span class="stat-value" id="stat-val-SEN">1</span>
+        </div>
+      </div>
+
+      <!-- EQUIPPED WEAPONS -->
+      <div>
+        <div class="sidebar-section-label">EQUIPPED WEAPONS</div>
+        <div class="sidebar-weapons" id="sidebar-weapons"></div>
+      </div>
+
+      <div class="sidebar-gate">
+        <div class="gate-label">ACTIVE GATE</div>
+        <div class="gate-title" id="sidebar-gate-title">GATE —</div>
+        <div class="gate-days-mini" id="gate-days-mini"></div>
+        <div class="gate-progress-text" id="gate-progress-text"><span>0</span>/7 DAYS</div>
+      </div>
+
+      <button class="sidebar-reset-btn" onclick="resetState()">⚠ RESET PROGRESS</button>
+    </aside>
+
+    <!-- CONTENT -->
+    <main class="game-content">
+
+      <!-- TABS -->
+      <nav class="tab-nav">
+        <button class="tab-btn active" data-tab="tab-quests"    onclick="switchTab('tab-quests')">DAILY QUESTS</button>
+        <button class="tab-btn"        data-tab="tab-ascension" onclick="switchTab('tab-ascension')">ASCENSION</button>
+        <button class="tab-btn"        data-tab="tab-army"      onclick="switchTab('tab-army')">ARMY</button>
+        <button class="tab-btn"        data-tab="tab-armory"    onclick="switchTab('tab-armory')">ARMORY</button>
+        <button class="tab-btn"        data-tab="tab-bosses"    onclick="switchTab('tab-bosses')">BOSSES</button>
+        <button class="tab-btn"        data-tab="tab-gates"     onclick="switchTab('tab-gates')">GATES</button>
+        <button class="tab-btn"        data-tab="tab-calendar"  onclick="switchTab('tab-calendar')">RECORDS</button>
+        <button class="tab-btn"        data-tab="tab-settings"  onclick="switchTab('tab-settings')">SETTINGS</button>
+      </nav>
+
+      <!-- ─── QUESTS TAB ─── -->
+      <section class="tab-panel active" id="tab-quests">
+        <div class="panel-header">
+          <div class="panel-title">DAILY QUESTS</div>
+          <div class="panel-subtitle">Complete all quests to earn XP, level up, and unlock weapons &amp; creatures.</div>
+        </div>
+
+        <div class="streak-row">
+          <div class="streak-item">
+            <span class="streak-num fire" id="streak-current">0</span>
+            <span class="streak-lbl">CURRENT STREAK</span>
+          </div>
+          <div class="streak-divider"></div>
+          <div class="streak-item">
+            <span class="streak-num" id="streak-longest">0</span>
+            <span class="streak-lbl">LONGEST STREAK</span>
+          </div>
+          <div class="streak-divider"></div>
+          <div class="streak-item">
+            <span class="streak-num" id="streak-total-days">0</span>
+            <span class="streak-lbl">DAYS COMPLETED</span>
+          </div>
+        </div>
+
+        <div id="quest-grid" class="quest-grid"></div>
+
+        <div class="daily-progress-section">
+          <div class="daily-progress-header">
+            <span class="daily-progress-label">DAILY XP PROGRESS</span>
+            <span class="daily-progress-value" id="daily-progress-value">0/5 QUESTS — 0% XP</span>
+          </div>
+          <div class="daily-bar-wrap">
+            <div class="daily-bar-fill" id="daily-bar-fill" style="width:0%"></div>
+          </div>
+        </div>
+
+        <!-- QUEST MANAGER -->
+        <div style="margin-top:20px;text-align:center;">
+          <button class="quest-mgmt-toggle" id="quest-mgmt-toggle" onclick="toggleQuestMgmt()">⚙ MANAGE QUESTS</button>
+        </div>
+        <div class="quest-mgmt-section" id="quest-mgmt-section" style="display:none">
+          <div class="sidebar-section-label" style="margin-bottom:12px;">CURRENT QUESTS</div>
+          <div class="quest-mgmt-list" id="quest-mgmt-list"></div>
+          <div class="add-quest-form">
+            <input class="add-quest-input" id="new-habit-name" type="text" placeholder="QUEST NAME (e.g. COLD SHOWER)" maxlength="30">
+            <select class="add-quest-select" id="new-habit-stat">
+              <option value="STR">STR</option>
+              <option value="AGI">AGI</option>
+              <option value="INT">INT</option>
+              <option value="VIT">VIT</option>
+              <option value="SEN">SEN</option>
+            </select>
+            <select class="add-quest-select" id="new-habit-icon"></select>
+            <button class="add-quest-btn" onclick="addCustomHabit()">+ ADD QUEST</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- ─── ASCENSION TAB ─── -->
+      <section class="tab-panel" id="tab-ascension">
+        <div class="panel-header">
+          <div class="panel-title">ASCENSION TOWER</div>
+          <div class="panel-subtitle">30 floors of narrative philosophy. Unlocked by leveling up. Each floor reveals a piece of the Protocol's lore.</div>
+        </div>
+        <div class="tower-container" id="tower-container"></div>
+      </section>
+
+      <!-- ─── ARMY TAB ─── -->
+      <section class="tab-panel" id="tab-army">
+        <div class="panel-header">
+          <div class="panel-title">SHADOW ARMY</div>
+          <div class="panel-subtitle">14 unique creatures across 7 tiers. Click any card to view lore, abilities, and how to unlock.</div>
+        </div>
+
+        <div class="army-sub-nav">
+          <button class="army-sub-btn active" data-army="all"  onclick="switchArmyView('all')">ALL CREATURES</button>
+          <button class="army-sub-btn"        data-army="mine" onclick="switchArmyView('mine')">MY ARMY</button>
+        </div>
+
+        <div class="army-panel active" id="army-panel-all">
+          <div class="creature-grid" id="bestiary-grid"></div>
+        </div>
+        <div class="army-panel" id="army-panel-mine">
+          <div class="creature-grid" id="myarmy-grid"></div>
+        </div>
+      </section>
+
+      <!-- ─── ARMORY TAB ─── -->
+      <section class="tab-panel" id="tab-armory">
+        <div class="panel-header">
+          <div class="panel-title">ARMORY</div>
+          <div class="panel-subtitle">Each quest unlocks a weapon line. Complete the quest more times to upgrade your weapon and unlock new skills.</div>
+        </div>
+        <div id="armory-container"></div>
+      </section>
+
+      <!-- ─── BOSSES TAB ─── -->
+      <section class="tab-panel" id="tab-bosses">
+        <div class="panel-header">
+          <div class="panel-title">BOSS RAIDS</div>
+          <div class="panel-subtitle">Five legendary bosses guard the tower's depths. Defeat them by completing habits — each completion deals damage.</div>
+        </div>
+        <div class="boss-grid" id="boss-grid"></div>
+      </section>
+
+      <!-- ─── GATES TAB ─── -->
+      <section class="tab-panel" id="tab-gates">
+        <div class="panel-header">
+          <div class="panel-title">GATE SYSTEM</div>
+          <div class="panel-subtitle">Complete all quests for 7 consecutive days to achieve S-Rank gate clear.</div>
+        </div>
+        <div class="gates-grid" id="gates-grid"></div>
+      </section>
+
+      <!-- ─── RECORDS TAB ─── -->
+      <section class="tab-panel" id="tab-calendar">
+        <div class="panel-header">
+          <div class="panel-title">HUNTER RECORDS</div>
+          <div class="panel-subtitle">90-day activity heatmap and full progression statistics.</div>
+        </div>
+
+        <div class="calendar-section">
+          <div class="calendar-label">ACTIVITY — LAST 90 DAYS</div>
+          <div class="heatmap-grid" id="heatmap-grid"></div>
+          <div class="heatmap-legend">
+            <span class="heatmap-legend-text">LESS</span>
+            <div class="heatmap-swatch" style="background:rgba(255,255,255,.04)"></div>
+            <div class="heatmap-swatch" style="background:rgba(59,130,246,.2)"></div>
+            <div class="heatmap-swatch" style="background:rgba(59,130,246,.45)"></div>
+            <div class="heatmap-swatch" style="background:rgba(59,130,246,.7)"></div>
+            <div class="heatmap-swatch" style="background:#22d3ee;box-shadow:0 0 6px rgba(34,211,238,.4)"></div>
+            <span class="heatmap-legend-text">MORE</span>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <table class="stats-table">
+          <thead>
+            <tr><th>METRIC</th><th>VALUE</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Current Level</td><td class="stat-highlight" id="cal-level">1</td></tr>
+            <tr><td>Current Rank</td><td class="stat-highlight" id="cal-rank">E-RANK</td></tr>
+            <tr><td>Total XP Earned</td><td class="stat-highlight" id="cal-total-xp">0</td></tr>
+            <tr><td>Days Fully Completed</td><td class="stat-highlight" id="cal-days">0</td></tr>
+            <tr><td>Current Streak</td><td class="stat-highlight" id="cal-streak">0</td></tr>
+            <tr><td>Longest Streak</td><td class="stat-highlight" id="cal-longest">0</td></tr>
+            <tr><td>Creatures Extracted</td><td class="stat-highlight" id="cal-shadows">0/14</td></tr>
+            <tr><td>Story Floors Unlocked</td><td class="stat-highlight" id="cal-floors">0/30</td></tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- ─── SETTINGS TAB ─── -->
+      <section class="tab-panel" id="tab-settings">
+        <div class="panel-header">
+          <div class="panel-title">SETTINGS</div>
+        </div>
+        <div class="settings-section">
+          <div class="settings-title">DATA MANAGEMENT</div>
+          <div class="settings-row">
+            <button class="settings-btn" onclick="exportProgress()">EXPORT PROGRESS</button>
+            <label class="settings-btn" style="cursor:pointer">
+              IMPORT PROGRESS
+              <input type="file" accept=".json" style="display:none" onchange="importProgress(this.files[0])">
+            </label>
+          </div>
+        </div>
+        <div class="settings-section">
+          <div class="settings-title">DANGER ZONE</div>
+          <div class="settings-row">
+            <button class="settings-btn danger" onclick="resetState()">⚠ RESET ALL PROGRESS</button>
+            <button class="settings-btn" onclick="selectChar_reset()">CHANGE HUNTER</button>
+          </div>
+        </div>
+        <div class="settings-section">
+          <div class="settings-title">ABOUT</div>
+          <p style="font-size:.8rem;color:var(--text-dim);line-height:1.8;">
+            HAKAI PROTOCOL V2 &nbsp;|&nbsp; Gamified habit tracker inspired by Solo Leveling.<br>
+            Complete daily quests. Level up. Unlock weapons. Build your shadow army. Defeat bosses.<br>
+            All data stored locally — no login, no cloud, no tracking.
+          </p>
+        </div>
+      </section>
+
+    </main>
+  </div>
+</div>
+<!-- END SCREEN-GAME -->
+
+
+<!-- ═══════════════════════════════════════════════════════
+     STORY MODAL
+     ═══════════════════════════════════════════════════════ -->
+<div class="story-modal-bg" id="story-modal-bg" onclick="if(event.target===this)closeStory()">
+  <div class="story-modal">
+    <button class="story-modal-close" onclick="closeStory()">CLOSE</button>
+    <div class="story-modal-floor" id="story-modal-floor">FLOOR 01</div>
+    <div class="story-modal-arc" id="story-modal-arc">THE AWAKENING</div>
+    <div class="story-modal-title" id="story-modal-title">THE GLITCH</div>
+    <div class="story-modal-text" id="story-modal-text"></div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     CREATURE DETAIL MODAL
+     ═══════════════════════════════════════════════════════ -->
+<div class="creature-modal-bg" id="creature-modal-bg" onclick="if(event.target===this)closeCreatureModal()">
+  <div class="creature-modal">
+    <button class="cm-close" onclick="closeCreatureModal()">✕ CLOSE</button>
+    <div class="cm-header">
+      <div class="cm-icon" id="cm-icon">👺</div>
+      <div class="cm-meta">
+        <div class="cm-tier" id="cm-tier">E-RANK · GOBLIN · SHATTERED WASTES</div>
+        <div class="cm-name" id="cm-name">GOBLIN SCOUT</div>
+        <div id="cm-status-text" style="font-family:'Orbitron',sans-serif;font-size:.6rem;letter-spacing:3px;margin-top:6px;color:var(--text-dim)">NOT YET EXTRACTED</div>
+      </div>
+    </div>
+    <div class="cm-lore" id="cm-lore"></div>
+    <div class="cm-section-label">ABILITIES</div>
+    <div class="cm-abilities-grid" id="cm-abilities"></div>
+    <div class="cm-section-label" style="margin-top:18px;">HOW TO OBTAIN</div>
+    <div class="cm-obtain-section">
+      <div class="cm-obtain-icon" id="cm-obtain-icon">🔥</div>
+      <div>
+        <div class="cm-obtain-label">UNLOCK CONDITION</div>
+        <div class="cm-obtain-cond" id="cm-obtain-cond">—</div>
+      </div>
+    </div>
+    <div class="cm-army-bonus" id="cm-army-bonus" style="margin-top:12px;">ARMY BONUS: —</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     WEAPON DROP OVERLAY
+     ═══════════════════════════════════════════════════════ -->
+<div class="weapon-drop-bg" id="weapon-drop-bg" onclick="if(event.target===this)closeWeaponDrop()">
+  <div class="weapon-drop">
+    <span class="wd-tag">[ WEAPON ACQUIRED ]</span>
+    <span class="wd-rarity" id="wd-rarity">LEGENDARY</span>
+    <span class="wd-icon" id="wd-icon">⚔️</span>
+    <div class="wd-name" id="wd-name">EXTINCTION FIST</div>
+    <div class="wd-skill-name" id="wd-skill-name">BIG BANG STRIKE</div>
+    <div class="wd-skill-desc" id="wd-skill-desc"></div>
+    <button class="wd-btn" onclick="closeWeaponDrop()">[ EQUIP WEAPON ]</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     SYSTEM NOTIFICATION
+     ═══════════════════════════════════════════════════════ -->
+<div class="system-notif-bg" id="system-notif-bg" onclick="if(event.target===this)closeSystemNotif()">
+  <div class="system-notif">
+    <span class="system-notif-tag">[ SYSTEM ]</span>
+    <span class="system-notif-icon" id="sn-icon">⚡</span>
+    <div class="system-notif-title" id="sn-title">QUEST COMPLETE</div>
+    <div class="system-notif-body" id="sn-body"></div>
+    <button class="system-notif-btn" onclick="closeSystemNotif()">[ CONFIRM ]</button>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     LEVEL UP CINEMATIC
+     ═══════════════════════════════════════════════════════ -->
+<div class="levelup-overlay" id="levelup-overlay" onclick="closeLevelUp()">
+  <div class="levelup-ring"></div>
+  <div class="levelup-ring-2"></div>
+  <div class="levelup-tag">[ SYSTEM ]</div>
+  <div class="levelup-title">LEVEL UP</div>
+  <div class="levelup-num" id="levelup-num">LEVEL 1 → LEVEL 2</div>
+  <div class="levelup-stats-gained" id="levelup-stats-gained"></div>
+  <div class="levelup-close-hint">[ TAP ANYWHERE TO CONTINUE ]</div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     RANK UP OVERLAY
+     ═══════════════════════════════════════════════════════ -->
+<div class="rankup-overlay" id="rankup-overlay" onclick="closeRankUp()">
+  <div class="rankup-badge-old" id="rankup-old">E-RANK</div>
+  <div class="rankup-arrow">▼</div>
+  <div class="rankup-badge-new" id="rankup-new">D-RANK</div>
+  <div class="rankup-title">RANK ADVANCEMENT</div>
+  <div class="rankup-desc" id="rankup-desc-text">Awakened Hunter</div>
+  <div class="rankup-close">[ TAP ANYWHERE TO CONTINUE ]</div>
+</div>
+
+<script src="engine.js"></script>
+<script src="dev_panel.js"></script>
+</body>
+</html>
