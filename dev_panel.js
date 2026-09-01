@@ -1,3 +1,11 @@
+/* DEV PANEL — activates on localhost OR when launched via /dev/ link */
+const _devAllowed = location.hostname === 'localhost' ||
+                    location.hostname === '127.0.0.1' ||
+                    sessionStorage.getItem('hakaiDevMode') === '1';
+
+if (!_devAllowed) {
+  /* Silent in production — visit /dev/ subfolder to activate */
+} else {
 /* =========================================================
    HAKAI PROTOCOL — DEV SANDBOX PANEL
    Floating overlay for testing & previewing all game states
@@ -402,3 +410,5 @@
 
   console.log('%c⚡ HAKAI DEV PANEL LOADED — click the ⚙ button (bottom-right)', 'color:#a78bfa;font-family:monospace;font-weight:bold;font-size:13px');
 })();
+
+} /* end dev guard */
