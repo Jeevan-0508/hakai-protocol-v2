@@ -339,6 +339,8 @@ let S={
 };
 function loadState(){const r=localStorage.getItem('hakai_v2');if(r){try{const s=JSON.parse(r);S={...S,...s};if(!S.habits||!S.habits.length)S.habits=DEFAULT_HABITS.map(h=>({...h}));}catch(e){}}}
 let selectedQuestDate=todayKey();
+const _tdy=new Date();
+let calYear=_tdy.getFullYear();let calMonth=_tdy.getMonth();
 function selectQuestDate(dKey){selectedQuestDate=dKey;renderQuests();if(typeof playUINav==='function')playUINav();}
 function saveState(){localStorage.setItem('hakai_v2',JSON.stringify(S));}
 function resetState(){if(!confirm('ERASE ALL PROGRESS? This cannot be undone.'))return;localStorage.removeItem('hakai_v2');location.reload();}
@@ -825,30 +827,46 @@ function renderGateWidget(){
   document.getElementById('gate-progress-text').innerHTML=`<span>${count}</span>/7 DAYS`;
 }
 function renderDateStrip(){
-  const strip=document.getElementById('quest-date-strip');
-  if(!strip)return;
-  const today=todayKey();
-  const DAY=['SUN','MON','TUE','WED','THU','FRI','SAT'];
-  const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  let html='<div class="date-strip">';
-  for(let offset=-30;offset<=6;offset++){
-    const d=new Date(today+'T00:00:00');d.setDate(d.getDate()+offset);
-    const dKey=d.toISOString().split('T')[0];
+  const strip=document.getElementById('quest-date-strip');if(!strip)return;
+  const today=todayKey(),selY=calYear,selM=calMonth;
+  const MON=['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const MSHORT=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  // Year row
+  let yHtml='<div class="cal-year-row">';
+  for(let y=2024;y<=2028;y++) yHtml+=`<button class="cal-year-btn${selY===y?' active':''}" onclick="setCalYear(${y})">${y}</button>`;
+  yHtml+='</div>';
+  // Month row
+  let mHtml='<div class="cal-month-row">';
+  for(let m=0;m<12;m++) mHtml+=`<button class="cal-month-btn${selM===m?' active':''}" onclick="setCalMonth(${m})">${MSHORT[m]}</button>`;
+  mHtml+='</div>';
+  // Calendar grid header
+  const DAYS=['Mo','Tu','We','Th','Fr','Sa','Su'];
+  let gHtml=`<div class="cal-month-label">${MON[selM]} ${selY}</div><div class="cal-grid">`;
+  DAYS.forEach(d=>gHtml+=`<div class="cal-hdr">${d}</div>`);
+  // First day of month (0=Sun..6=Sat) → convert to Mon-based (0=Mon)
+  const firstD=new Date(selY,selM,1);
+  const startOffset=(firstD.getDay()+6)%7;
+  const daysInMonth=new Date(selY,selM+1,0).getDate();
+  for(let pad=0;pad<startOffset;pad++) gHtml+='<div class="cal-empty"></div>';
+  for(let d=1;d<=daysInMonth;d++){
+    const dKey=`${selY}-${String(selM+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
     const isFuture=dKey>today,isToday=dKey===today,isSel=dKey===selectedQuestDate;
     const data=S.habitData[dKey]||{};
     const done=S.habits.filter(h=>data[h.id]).length,total=S.habits.length;
     const allDone=done===total&&total>0,someDone=done>0&&!allDone;
-    html+=`<div class="date-chip${isSel?' selected':''}${isToday?' is-today':''}${isFuture?' future':''}" onclick="selectQuestDate('${dKey}')" title="${dKey}">
-      <span class="ds-dayname">${DAY[d.getDay()]}</span>
-      <span class="ds-daynum">${d.getDate()}</span>
-      <span class="ds-month">${MON[d.getMonth()]}</span>
-      <span class="ds-dot${allDone?' full':someDone?' partial':''}">${allDone?'✓':done>0?done:''}</span>
+    const cls=['cal-day',isSel?'selected':'',isToday?'is-today':'',isFuture?'future':'',allDone?'all-done':someDone?'partial':''].filter(Boolean).join(' ');
+    gHtml+=`<div class="${cls}" onclick="selectQuestDate('${dKey}')" title="${dKey}">
+      <span class="cal-day-num">${d}</span>
+      <span class="cal-dot${allDone?' full':someDone?' partial':''}">${allDone?'✓':done>0?done:''}</span>
     </div>`;
   }
-  html+='</div>';
-  strip.innerHTML=html;
-  setTimeout(()=>{const s=strip.querySelector('.date-chip.selected');if(s)s.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});},60);
+  gHtml+='</div>';
+  strip.innerHTML=yHtml+mHtml+gHtml;
+  // scroll selected day into view
+  setTimeout(()=>{const s=strip.querySelector('.cal-day.selected');if(s)s.scrollIntoView({behavior:'smooth',block:'nearest'});},60);
 }
+function setCalYear(y){calYear=y;renderDateStrip();}
+function setCalMonth(m){calMonth=m;renderDateStrip();}
 function renderQuests(){
   const today=todayKey();
   if(!selectedQuestDate)selectedQuestDate=today;
@@ -859,8 +877,9 @@ function renderQuests(){
   if(lbl){
     const d=new Date(date+'T00:00:00');
     const opts={weekday:'long',year:'numeric',month:'long',day:'numeric'};
-    const label=isToday?'⚡ TODAY':isFuture?'🔮 UPCOMING':('📅 '+d.toLocaleDateString('en-GB',opts).toUpperCase());
-    lbl.innerHTML=`<span class="qdl-tag ${isFuture?'future':isToday?'today':'past'}">${label}</span>`;
+    const tag=isToday?'today':isFuture?'future':'past';
+    const label=isToday?'⚡ TODAY':isFuture?'🔮 UPCOMING':'📅 '+d.toLocaleDateString('en-GB',opts).toUpperCase();
+    lbl.innerHTML=`<span class="qdl-tag ${tag}">${label}</span>`;
   }
   const container=document.getElementById('quest-grid');container.innerHTML='';
   S.habits.forEach(h=>{
@@ -1193,65 +1212,82 @@ function toggleGateDay(dKey, wk){
 }
 function renderGates(){
   const c=document.getElementById('gates-grid');c.innerHTML='';
-  const today=todayKey(),currWk=getWeekKey(today);
-  const weeks=[];const d=new Date(today+'T00:00:00');
-  for(let w=0;w<8;w++){const k=getWeekKey(d.toISOString().split('T')[0]);if(!weeks.includes(k))weeks.push(k);d.setDate(d.getDate()-7);}
-  weeks.reverse();
-  weeks.forEach(wk=>{
-    const gate=S.completedGates[wk]||{days:[],rank:'-'};
-    const isActive=wk===currWk,daysDone=gate.days?gate.days.length:0,pct=(daysDone/7)*100;
-    let rc='#94a3b8';
-    if(gate.rank==='S')rc='#fbbf24';else if(gate.rank==='A')rc='#fb923c';
-    else if(gate.rank==='B')rc='#c084fc';else if(gate.rank==='C')rc='#60a5fa';
-    const [yr,wkNum]=wk.split('-W');
-    const jan4=new Date(parseInt(yr),0,4);
-    const startDate=new Date(jan4.getTime()+((parseInt(wkNum)-1)*7-(jan4.getDay()||7)+1)*86400000);
-    let dotsHTML='';
-    for(let i=0;i<7;i++){
-      const dd=new Date(startDate);dd.setDate(startDate.getDate()+i);
-      const dKey=dd.toISOString().split('T')[0];
-      const isDone=gate.days&&gate.days.includes(dKey),isToday2=dKey===today,isPast=dKey<today&&!isDone;
-      const dc=isDone?'complete':isToday2?'today':isPast?'missed':'';
-      const isPastClickable=dKey<today&&dKey!==today;
-      const dotClick=isPastClickable?`onclick="toggleGateDay('${dKey}','${wk}')" title="Click to toggle this day"`:'';
-      dotsHTML+=`<div class="gate-dot ${dc} ${isPastClickable?'gate-dot-clickable':''}" ${dotClick}>${WEEK_DAYS[i].charAt(0)}</div>`;
+  const today=todayKey(),currWk=getWeekKey(today),currYear=parseInt(today.split('-')[0]);
+  for(let yr=2024;yr<=2028;yr++){
+    // Generate all ISO weeks for this year
+    const weeks=[];
+    const d=new Date(yr,0,1);
+    while(true){
+      const dKey=d.toISOString().split('T')[0];
+      const wk=getWeekKey(dKey);
+      const wkYr=parseInt(wk.split('-W')[0]);
+      if(wkYr>yr)break;
+      if(wkYr===yr&&!weeks.includes(wk))weeks.push(wk);
+      d.setDate(d.getDate()+7);
+      if(d.getFullYear()>yr+1)break;
     }
-    const cleared=daysDone>=7;
-    c.innerHTML+=`<div class="gate-card ${isActive?'active-gate':''} ${cleared?'cleared-gate':''}">
-      <div class="gate-card-header">
-        <span class="gate-card-title">GATE ${wk}</span>
-        ${gate.rank&&gate.rank!=='-'?`<span class="gate-rank-badge" style="color:${rc};border-color:${rc}80">${gate.rank}-RANK</span>`
-          :`<span class="gate-rank-badge" style="color:#64748b;border-color:#64748b40">${isActive?'IN PROGRESS':'INCOMPLETE'}</span>`}
+    weeks.sort();
+    const clearedCount=weeks.filter(wk=>(S.completedGates[wk]||{}).days?.length>=7).length;
+    const isCurrentYear=yr===currYear;
+    const expanded=yr<=currYear;
+    let cardsHTML='';
+    weeks.forEach(wk=>{
+      const gate=S.completedGates[wk]||{days:[],rank:''};
+      const isActive=wk===currWk;
+      const daysDone=gate.days?gate.days.length:0,pct=(daysDone/7)*100;
+      let rc='#94a3b8';
+      if(gate.rank==='S')rc='#fbbf24';else if(gate.rank==='A')rc='#fb923c';
+      else if(gate.rank==='B')rc='#c084fc';else if(gate.rank==='C')rc='#60a5fa';
+      const [wkYr,wkNum]=wk.split('-W');
+      const jan4=new Date(parseInt(wkYr),0,4);
+      const startDate=new Date(jan4.getTime()+((parseInt(wkNum)-1)*7-(jan4.getDay()||7)+1)*86400000);
+      let dotsHTML='',isFutureWeek=true;
+      for(let i=0;i<7;i++){
+        const dd=new Date(startDate);dd.setDate(startDate.getDate()+i);
+        const dKey=dd.toISOString().split('T')[0];
+        const isDone=gate.days&&gate.days.includes(dKey);
+        const isToday2=dKey===today,isFutDay=dKey>today,isPast=dKey<today&&!isDone;
+        if(!isFutDay)isFutureWeek=false;
+        const dc=isDone?'complete':isToday2?'today':isPast?'missed':isFutDay?'future':'';
+        const isPastClickable=dKey<today||isToday2;
+        const dotClick=isPastClickable?`onclick="toggleGateDay('${dKey}','${wk}')" title="Toggle day"`:'';
+        dotsHTML+=`<div class="gate-dot ${dc}${isPastClickable?' gate-dot-clickable':''}" ${dotClick}>${WEEK_DAYS[i].charAt(0)}</div>`;
+      }
+      const cleared=daysDone>=7;
+      const statusLabel=isActive?'ACTIVE':cleared?'CLEARED':isFutureWeek?'UPCOMING':'ENDED';
+      const rankBadge=gate.rank&&gate.rank!==''?
+        `<span class="gate-rank-badge" style="color:${rc};border-color:${rc}80">${gate.rank}-RANK</span>`:
+        `<span class="gate-rank-badge" style="color:#64748b;border-color:#64748b40">${isActive?'IN PROGRESS':isFutureWeek?'UPCOMING':'INCOMPLETE'}</span>`;
+      const cardId=wk===currWk?' id="current-gate-card"':'';
+      cardsHTML+=`<div class="gate-card${isActive?' active-gate':''}${cleared?' cleared-gate':''}${isFutureWeek?' future-gate':''}"${cardId}>
+        <div class="gate-card-header"><span class="gate-card-title">GATE ${wk}</span>${rankBadge}</div>
+        <div class="gate-week-dots">${dotsHTML}</div>
+        <div class="gate-bar-wrap"><div class="gate-bar-fill" style="width:${pct}%"></div></div>
+        <div class="gate-footer">
+          <span class="gate-footer-text"><span>${daysDone}</span>/7 days</span>
+          <span class="gate-footer-text">${statusLabel}</span>
+        </div></div>`;
+    });
+    c.innerHTML+=`<div class="gate-year-section">
+      <div class="gate-year-header" onclick="toggleYearSection(${yr})">
+        <span class="gate-year-label">${yr}</span>
+        <span class="gate-year-stats">${clearedCount} cleared · ${weeks.length} weeks</span>
+        <span class="gate-year-chevron" id="gate-chevron-${yr}">${expanded?'▼':'▶'}</span>
       </div>
-      <div class="gate-week-dots">${dotsHTML}</div>
-      <div class="gate-bar-wrap"><div class="gate-bar-fill" style="width:${pct}%"></div></div>
-      <div class="gate-footer">
-        <span class="gate-footer-text"><span>${daysDone}</span>/7 days</span>
-        <span class="gate-footer-text">${isActive?'ACTIVE':cleared?'CLEARED':'ENDED'}</span>
+      <div class="gate-year-body" id="gate-body-${yr}" style="${expanded?'':'display:none'}">
+        <div class="gate-year-grid">${cardsHTML}</div>
       </div></div>`;
-  });
-}
-
-function renderCalendar(){
-  const grid=document.getElementById('heatmap-grid');grid.innerHTML='';
-  const today=new Date();
-  for(let i=89;i>=0;i--){
-    const d=new Date(today);d.setDate(today.getDate()-i);
-    const key=d.toISOString().split('T')[0];
-    const comp=getDayCompletion(key);
-    let lv=0;if(comp>=1)lv=4;else if(comp>=.75)lv=3;else if(comp>=.4)lv=2;else if(comp>0)lv=1;
-    const sq=document.createElement('div');sq.className='heatmap-day';
-    sq.setAttribute('data-level',lv);sq.title=key+': '+Math.round(comp*100)+'%';
-    grid.appendChild(sq);
   }
-  document.getElementById('cal-level').textContent=S.level;
-  document.getElementById('cal-rank').textContent=getRank(S.level).label;
-  document.getElementById('cal-total-xp').textContent=S.totalXPEarned;
-  document.getElementById('cal-days').textContent=S.totalDaysCompleted||0;
-  document.getElementById('cal-streak').textContent=S.streak;
-  document.getElementById('cal-longest').textContent=S.longestStreak;
-  document.getElementById('cal-shadows').textContent=S.unlockedCreatures.length+'/'+CREATURES.length;
-  document.getElementById('cal-floors').textContent=S.storyProgress+'/30';
+  setTimeout(()=>{const el=document.getElementById('current-gate-card');if(el)el.scrollIntoView({behavior:'smooth',block:'center'});},150);
+}
+function toggleYearSection(yr){
+  const body=document.getElementById('gate-body-'+yr);
+  const chev=document.getElementById('gate-chevron-'+yr);
+  if(!body)return;
+  const hidden=body.style.display==='none';
+  body.style.display=hidden?'':'none';
+  if(chev)chev.textContent=hidden?'▼':'▶';
+  if(typeof playUINav==='function')playUINav();
 }
 
 function renderAll(){
