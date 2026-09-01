@@ -338,6 +338,8 @@ let S={
   bossProgress:{},bossDefeated:[],
 };
 function loadState(){const r=localStorage.getItem('hakai_v2');if(r){try{const s=JSON.parse(r);S={...S,...s};if(!S.habits||!S.habits.length)S.habits=DEFAULT_HABITS.map(h=>({...h}));}catch(e){}}}
+let selectedQuestDate=todayKey();
+function selectQuestDate(dKey){selectedQuestDate=dKey;renderQuests();if(typeof playUINav==='function')playUINav();}
 function saveState(){localStorage.setItem('hakai_v2',JSON.stringify(S));}
 function resetState(){if(!confirm('ERASE ALL PROGRESS? This cannot be undone.'))return;localStorage.removeItem('hakai_v2');location.reload();}
 function xpForLevel(lv){return Math.floor(100*Math.pow(1.12,lv-1));}
@@ -424,7 +426,7 @@ function checkBossProgress(){
 }
 
 function toggleHabit(habitId){
-  const date=todayKey();
+  const date=selectedQuestDate||todayKey();
   if(!S.habitData[date])S.habitData[date]={};
   const wasDone=!!S.habitData[date][habitId];
   const habit=S.habits.find(h=>h.id===habitId);if(!habit)return;
@@ -822,8 +824,46 @@ function renderGateWidget(){
   const count=gate.days?gate.days.length:0;
   document.getElementById('gate-progress-text').innerHTML=`<span>${count}</span>/7 DAYS`;
 }
+let selectedQuestDate=todayKey();
+function selectQuestDate(dKey){selectedQuestDate=dKey;renderQuests();if(typeof playUINav==='function')playUINav();}
+function renderDateStrip(){
+  const strip=document.getElementById('quest-date-strip');
+  if(!strip)return;
+  const today=todayKey();
+  const DAY=['SUN','MON','TUE','WED','THU','FRI','SAT'];
+  const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  let html='<div class="date-strip">';
+  for(let offset=-30;offset<=6;offset++){
+    const d=new Date(today+'T00:00:00');d.setDate(d.getDate()+offset);
+    const dKey=d.toISOString().split('T')[0];
+    const isFuture=dKey>today,isToday=dKey===today,isSel=dKey===selectedQuestDate;
+    const data=S.habitData[dKey]||{};
+    const done=S.habits.filter(h=>data[h.id]).length,total=S.habits.length;
+    const allDone=done===total&&total>0,someDone=done>0&&!allDone;
+    html+=`<div class="date-chip${isSel?' selected':''}${isToday?' is-today':''}${isFuture?' future':''}" onclick="selectQuestDate('${dKey}')" title="${dKey}">
+      <span class="ds-dayname">${DAY[d.getDay()]}</span>
+      <span class="ds-daynum">${d.getDate()}</span>
+      <span class="ds-month">${MON[d.getMonth()]}</span>
+      <span class="ds-dot${allDone?' full':someDone?' partial':''}">${allDone?'✓':done>0?done:''}</span>
+    </div>`;
+  }
+  html+='</div>';
+  strip.innerHTML=html;
+  setTimeout(()=>{const s=strip.querySelector('.date-chip.selected');if(s)s.scrollIntoView({behavior:'smooth',block:'nearest',inline:'center'});},60);
+}
 function renderQuests(){
-  const today=todayKey(),data=S.habitData[today]||{};
+  const today=todayKey();
+  if(!selectedQuestDate)selectedQuestDate=today;
+  const date=selectedQuestDate,isFuture=date>today,isToday=date===today;
+  const data=S.habitData[date]||{};
+  renderDateStrip();
+  const lbl=document.getElementById('quest-date-label');
+  if(lbl){
+    const d=new Date(date+'T00:00:00');
+    const opts={weekday:'long',year:'numeric',month:'long',day:'numeric'};
+    const label=isToday?'⚡ TODAY':isFuture?'🔮 UPCOMING':('📅 '+d.toLocaleDateString('en-GB',opts).toUpperCase());
+    lbl.innerHTML=`<span class="qdl-tag ${isFuture?'future':isToday?'today':'past'}">${label}</span>`;
+  }
   const container=document.getElementById('quest-grid');container.innerHTML='';
   S.habits.forEach(h=>{
     const done=!!data[h.id];const w=getEquippedWeapon(h.id);
@@ -842,18 +882,19 @@ function renderQuests(){
       <div class="quest-reward">
         <span class="reward-pill">+${h.xp} XP</span>
         <span class="reward-pill">+1 ${h.stat}</span>
-        ${countHabitCompletions(h.id)?`<span class="reward-pill">${countHabitCompletions(h.id)}× done</span>`:''}
+        ${countHabitCompletions(h.id)?`<span class="reward-pill">${countHabitCompletions(h.id)}x done</span>`:''}
       </div>
-      <button class="quest-btn ${done?'done-btn':''}" onclick="toggleHabit('${h.id}')">
-        ${done?'✓  COMPLETED — UNDO':'▶  ACCEPT QUEST'}
+      <button class="quest-btn ${done?'done-btn':''} ${isFuture?'future-btn':''}"
+        ${isFuture?'disabled':''} onclick="${isFuture?'':('toggleHabit(\''+h.id+'\')')}">
+        ${isFuture?'🔒 NOT YET':done?'✓  COMPLETED — UNDO':'▶  ACCEPT QUEST'}
       </button>`;
     container.appendChild(div);
   });
-  const total=S.habits.length,done=S.habits.filter(h=>data[h.id]).length;
-  const pct=total>0?Math.round((done/total)*100):0;
+  const total=S.habits.length,doneCount=S.habits.filter(h=>data[h.id]).length;
+  const pct=total>0?Math.round((doneCount/total)*100):0;
   const fill=document.getElementById('daily-bar-fill');
   fill.style.width=pct+'%';fill.className='daily-bar-fill'+(pct>=100?' full':'');
-  document.getElementById('daily-progress-value').textContent=`${done}/${total} QUESTS — ${pct}% XP`;
+  document.getElementById('daily-progress-value').textContent=`${doneCount}/${total} QUESTS — ${pct}% XP`;
   document.getElementById('streak-current').textContent=S.streak;
   document.getElementById('streak-longest').textContent=S.longestStreak;
   document.getElementById('streak-total-days').textContent=S.totalDaysCompleted||0;

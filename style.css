@@ -1164,3 +1164,66 @@ body{background:var(--bg-deep);color:var(--text-primary);font-family:'Rajdhani',
 .gate-dot-clickable:active {
   transform: scale(0.95);
 }
+
+/* ══════════════════════════════════════════════
+   DATE PICKER STRIP — Daily Quests
+══════════════════════════════════════════════ */
+.date-strip {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding: 10px 4px 8px;
+  scrollbar-width: thin;
+  scrollbar-color: #3b2060 transparent;
+  margin-bottom: 4px;
+}
+.date-strip::-webkit-scrollbar { height: 4px; }
+.date-strip::-webkit-scrollbar-track { background: transparent; }
+.date-strip::-webkit-scrollbar-thumb { background: #3b2060; border-radius: 4px; }
+
+.date-chip {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 48px;
+  padding: 8px 6px 6px;
+  background: rgba(20,10,40,.6);
+  border: 1px solid rgba(59,32,96,.5);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all .15s;
+  flex-shrink: 0;
+}
+.date-chip:hover { background: rgba(124,58,237,.2); border-color: #7c3aed; transform: translateY(-2px); }
+.date-chip.selected { background: rgba(124,58,237,.35); border-color: #7c3aed; box-shadow: 0 0 10px rgba(124,58,237,.4); }
+.date-chip.is-today { border-color: #22d3ee; }
+.date-chip.is-today .ds-daynum { color: #22d3ee; }
+.date-chip.future { opacity: 0.45; }
+.date-chip.selected.is-today { border-color: #22d3ee; box-shadow: 0 0 12px rgba(34,211,238,.4); }
+
+.ds-dayname { font-size: .55rem; color: #64748b; letter-spacing: .05em; font-weight: 700; }
+.ds-daynum  { font-size: .95rem; color: #e2e8f0; font-weight: 800; line-height: 1; }
+.ds-month   { font-size: .5rem;  color: #475569; letter-spacing: .04em; }
+.ds-dot {
+  width: 18px; height: 18px; border-radius: 50%;
+  background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1);
+  display: flex; align-items: center; justify-content: center;
+  font-size: .55rem; color: #64748b; font-weight: 700; margin-top: 2px;
+}
+.ds-dot.partial { background: rgba(251,191,36,.15); border-color: #fbbf24; color: #fbbf24; }
+.ds-dot.full    { background: rgba(34,197,94,.2);   border-color: #22c55e; color: #22c55e; }
+
+/* Quest date label */
+.quest-date-label { margin: 6px 0 10px; min-height: 24px; }
+.qdl-tag {
+  display: inline-block;
+  font-size: .7rem; font-weight: 800; letter-spacing: .12em;
+  padding: 4px 12px; border-radius: 6px;
+}
+.qdl-tag.today  { background: rgba(34,211,238,.15); color: #22d3ee; border: 1px solid rgba(34,211,238,.3); }
+.qdl-tag.past   { background: rgba(139,92,246,.12); color: #a78bfa; border: 1px solid rgba(139,92,246,.25); }
+.qdl-tag.future { background: rgba(100,116,139,.12); color: #94a3b8; border: 1px solid rgba(100,116,139,.2); }
+
+/* Future quest button */
+.quest-btn.future-btn { opacity: .4; cursor: not-allowed; background: rgba(100,116,139,.2) !important; }
