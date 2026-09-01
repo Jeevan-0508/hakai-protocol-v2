@@ -833,7 +833,7 @@ function renderDateStrip(){
   const MSHORT=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   // Year row
   let yHtml='<div class="cal-year-row">';
-  for(let y=2024;y<=2028;y++) yHtml+=`<button class="cal-year-btn${selY===y?' active':''}" onclick="setCalYear(${y})">${y}</button>`;
+  for(let y=2026;y<=2028;y++) yHtml+=`<button class="cal-year-btn${selY===y?' active':''}" onclick="setCalYear(${y})">${y}</button>`;
   yHtml+='</div>';
   // Month row
   let mHtml='<div class="cal-month-row">';
@@ -841,9 +841,8 @@ function renderDateStrip(){
   mHtml+='</div>';
   // Calendar grid header
   const DAYS=['Mo','Tu','We','Th','Fr','Sa','Su'];
-  let gHtml=`<div class="cal-month-label">${MON[selM]} ${selY}</div><div class="cal-grid">`;
+  let gHtml=`<div class="cal-panel"><div class="cal-month-label">${MON[selM]} ${selY}</div><div class="cal-grid">`;
   DAYS.forEach(d=>gHtml+=`<div class="cal-hdr">${d}</div>`);
-  // First day of month (0=Sun..6=Sat) → convert to Mon-based (0=Mon)
   const firstD=new Date(selY,selM,1);
   const startOffset=(firstD.getDay()+6)%7;
   const daysInMonth=new Date(selY,selM+1,0).getDate();
@@ -857,10 +856,10 @@ function renderDateStrip(){
     const cls=['cal-day',isSel?'selected':'',isToday?'is-today':'',isFuture?'future':'',allDone?'all-done':someDone?'partial':''].filter(Boolean).join(' ');
     gHtml+=`<div class="${cls}" onclick="selectQuestDate('${dKey}')" title="${dKey}">
       <span class="cal-day-num">${d}</span>
-      <span class="cal-dot${allDone?' full':someDone?' partial':''}">${allDone?'✓':done>0?done:''}</span>
+      ${allDone?'<span class="cal-check">✓</span>':done>0?`<span class="cal-partial">${done}</span>`:''}
     </div>`;
   }
-  gHtml+='</div>';
+  gHtml+='</div></div>';
   strip.innerHTML=yHtml+mHtml+gHtml;
   // scroll selected day into view
   setTimeout(()=>{const s=strip.querySelector('.cal-day.selected');if(s)s.scrollIntoView({behavior:'smooth',block:'nearest'});},60);
@@ -1213,7 +1212,7 @@ function toggleGateDay(dKey, wk){
 function renderGates(){
   const c=document.getElementById('gates-grid');c.innerHTML='';
   const today=todayKey(),currWk=getWeekKey(today),currYear=parseInt(today.split('-')[0]);
-  for(let yr=2024;yr<=2028;yr++){
+  for(let yr=2026;yr<=2028;yr++){
     // Generate all ISO weeks for this year
     const weeks=[];
     const d=new Date(yr,0,1);

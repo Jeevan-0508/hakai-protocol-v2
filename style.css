@@ -1320,3 +1320,86 @@ body{background:var(--bg-deep);color:var(--text-primary);font-family:'Rajdhani',
   gap: 10px; padding: 4px 0 8px;
 }
 .future-gate { opacity: .45; }
+
+/* ══════════════════════════════════════════════
+   CALENDAR GRID — Daily Quests date picker
+══════════════════════════════════════════════ */
+#quest-date-strip { padding: 6px 0 4px; }
+
+.cal-year-row {
+  display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 8px;
+}
+.cal-year-btn {
+  padding: 5px 14px; border-radius: 8px; font-size: .7rem; font-weight: 800;
+  letter-spacing: .08em; cursor: pointer;
+  background: rgba(15,8,30,.8); border: 1px solid rgba(59,32,96,.5); color: #64748b;
+  transition: all .15s;
+}
+.cal-year-btn:hover { border-color: #7c3aed; color: #a78bfa; }
+.cal-year-btn.active { background: rgba(124,58,237,.35); border-color: #7c3aed; color: #e2e8f0; }
+
+.cal-month-row {
+  display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 8px;
+}
+.cal-month-btn {
+  padding: 4px 10px; border-radius: 6px; font-size: .65rem; font-weight: 700;
+  letter-spacing: .06em; cursor: pointer;
+  background: rgba(15,8,30,.8); border: 1px solid rgba(59,32,96,.4); color: #64748b;
+  transition: all .15s;
+}
+.cal-month-btn:hover { border-color: #7c3aed; color: #a78bfa; }
+.cal-month-btn.active { background: rgba(124,58,237,.3); border-color: #7c3aed; color: #c4b5fd; }
+
+/* Solid panel wrapping the grid */
+.cal-panel {
+  background: rgba(8,4,20,.92);
+  border: 1px solid rgba(59,32,96,.6);
+  border-radius: 12px;
+  padding: 12px;
+  backdrop-filter: blur(12px);
+}
+.cal-month-label {
+  font-size: .72rem; font-weight: 800; letter-spacing: .1em;
+  color: #a78bfa; margin-bottom: 8px;
+}
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 3px;
+}
+.cal-hdr {
+  text-align: center; font-size: .58rem; font-weight: 700;
+  color: #475569; letter-spacing: .05em; padding: 2px 0 5px;
+}
+.cal-empty { min-height: 36px; }
+
+.cal-day {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 1px; padding: 4px 2px; border-radius: 6px; cursor: pointer;
+  min-height: 36px; min-width: 0;
+  background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.05);
+  transition: all .12s; position: relative;
+}
+.cal-day:hover { background: rgba(124,58,237,.25); border-color: #7c3aed; }
+.cal-day.selected { background: rgba(124,58,237,.4); border-color: #7c3aed; box-shadow: 0 0 8px rgba(124,58,237,.5); }
+.cal-day.is-today  { border-color: #22d3ee; }
+.cal-day.is-today .cal-day-num { color: #22d3ee; font-weight: 900; }
+.cal-day.future    { opacity: .3; pointer-events: none; }
+.cal-day.all-done  { background: rgba(34,197,94,.12); border-color: rgba(34,197,94,.5); }
+.cal-day.partial   { background: rgba(251,191,36,.08); border-color: rgba(251,191,36,.35); }
+
+.cal-day-num { font-size: .75rem; font-weight: 800; color: #cbd5e1; line-height: 1; }
+.cal-check   { font-size: .55rem; color: #22c55e; font-weight: 900; line-height: 1; }
+.cal-partial { font-size: .5rem;  color: #fbbf24; font-weight: 800; line-height: 1; }
+
+/* Quest date label */
+.quest-date-label { margin: 8px 0 10px; min-height: 22px; }
+.qdl-tag {
+  display: inline-block; font-size: .68rem; font-weight: 800; letter-spacing: .1em;
+  padding: 4px 12px; border-radius: 6px;
+}
+.qdl-tag.today  { background: rgba(34,211,238,.12); color: #22d3ee; border: 1px solid rgba(34,211,238,.3); }
+.qdl-tag.past   { background: rgba(139,92,246,.1);  color: #a78bfa; border: 1px solid rgba(139,92,246,.25); }
+.qdl-tag.future { background: rgba(100,116,139,.1); color: #94a3b8; border: 1px solid rgba(100,116,139,.2); }
+.quest-btn.future-btn { opacity: .4; cursor: not-allowed; }
+
