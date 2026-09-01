@@ -19,6 +19,13 @@
 ![No Dependencies](https://img.shields.io/badge/Dependencies-ZERO-7c3aed?style=for-the-badge)
 ![GitHub Pages](https://img.shields.io/badge/GitHub%20Pages-LIVE-22c55e?style=for-the-badge&logo=github)
 
+<br/>
+
+| | |
+|:---:|:---:|
+| 🎮 [**PLAY NOW**](https://jeevan-0508.github.io/hakai-protocol-v2) | ⬇️ [**DOWNLOAD ZIP**](https://github.com/Jeevan-0508/hakai-protocol-v2/archive/refs/heads/main.zip) |
+| ⚙️ [**DEV MODE**](https://jeevan-0508.github.io/hakai-protocol-v2/dev/) | 📱 **PWA — Add to Home Screen** |
+
 </div>
 
 ---
@@ -427,13 +434,27 @@ Tier 1 → Tier 2 → Tier 3 → Tier 4 → Tier 5
 
 <div align="center">
 
-| | Link | Description |
-|---|---|---|
-| 🎮 | **[PLAY NOW — Browser](https://jeevan-0508.github.io/hakai-protocol-v2)** | Instant play, no install. Progress saves in your browser. |
-| ⚙️ | **[DEV / SANDBOX MODE](https://jeevan-0508.github.io/hakai-protocol-v2/dev/)** | Unlock everything, set level, test all features. |
-| ⬇️ | **[DOWNLOAD ZIP](https://github.com/Jeevan-0508/hakai-protocol-v2/archive/refs/heads/main.zip)** | Play offline. Extract → run `HAKAI DEV MODE.bat` (Windows) or `python3 -m http.server 8888` (Mac/Linux). |
+| Mode | Link | Platform | Description |
+|:---:|:---|:---:|:---|
+| 🎮 **PLAY** | **[► Launch Hakai Protocol](https://jeevan-0508.github.io/hakai-protocol-v2)** | 🌐 Browser | Instant play, no install needed. Works on any device. Progress auto-saves in browser. |
+| ⚙️ **DEV MODE** | **[► Launch Dev Sandbox](https://jeevan-0508.github.io/hakai-protocol-v2/dev/)** | 🌐 Browser | Full sandbox panel — set level, unlock all, toggle bosses, inject XP. |
+| ⬇️ **DOWNLOAD** | **[► Download ZIP (v2.0)](https://github.com/Jeevan-0508/hakai-protocol-v2/archive/refs/heads/main.zip)** | 💻 Offline | Download & play locally. No internet needed after download. |
+| 📱 **INSTALL APP** | **[► Open in Browser → Install](https://jeevan-0508.github.io/hakai-protocol-v2)** | 📱 Mobile/Desktop | PWA — open link, tap "Add to Home Screen" (iOS) or "Install App" (Android/Chrome). Works offline. |
+| 🐙 **SOURCE CODE** | **[► View on GitHub](https://github.com/Jeevan-0508/hakai-protocol-v2)** | 📂 GitHub | Full source code, README, assets. Star ⭐ if you like it! |
 
 </div>
+
+### 💾 Running Locally After Download
+
+| Method | Command | Notes |
+|:---|:---|:---|
+| **Windows (one-click)** | Double-click `HAKAI DEV MODE.bat` | Starts server + opens browser automatically |
+| **Python 3** | `python3 -m http.server 8888` then open `http://localhost:8888` | Built into most systems |
+| **Python 2** | `python -m SimpleHTTPServer 8888` | For older systems |
+| **Node.js** | `npx serve .` | Requires Node.js installed |
+| **VS Code** | Install "Live Server" extension → Right-click `index.html` → Open with Live Server | Most convenient for developers |
+
+> ⚠️ **Don't open `index.html` directly** (via `file://`) — fonts and some features won't load. Use any server method above instead.
 
 ---
 
