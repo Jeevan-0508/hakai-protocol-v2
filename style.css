@@ -632,3 +632,41 @@ button:disabled{opacity:.35;cursor:not-allowed;}
   .intro-btn{padding:12px 24px;}
   .intro-lines{display:none;}
 }
+
+/* ═══════════════════════════════════════════════
+   VISIBILITY FIX — overlays hidden by default,
+   shown only when JS adds .open / .visible
+═══════════════════════════════════════════════ */
+
+/* SCREENS */
+#screen-intro{display:block;}
+#screen-select{display:none;}
+#screen-select.visible{display:block;}
+#screen-game{display:none;}
+#screen-game.visible{display:block;}
+
+/* OVERLAYS — all hidden until .open */
+.levelup-overlay,
+.rankup-overlay,
+.system-notif-bg,
+.weapon-drop-bg,
+.creature-modal-bg,
+.story-modal-bg,
+.day-complete-overlay,
+.weekly-recap-overlay{display:none!important;}
+
+.levelup-overlay.open,
+.rankup-overlay.open,
+.system-notif-bg.open,
+.weapon-drop-bg.open,
+.creature-modal-bg.open,
+.story-modal-bg.open,
+.day-complete-overlay.open,
+.weekly-recap-overlay.open{display:flex!important;}
+
+/* SIDEBAR OVERLAY */
+.sidebar-overlay{display:none;}
+.sidebar-overlay.active{display:block;}
+
+/* SIDEBAR */
+#game-sidebar.sidebar-open{transform:translateX(0)!important;}
