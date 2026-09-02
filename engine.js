@@ -331,7 +331,7 @@ const STORY=[
 // ── ACHIEVEMENTS ──────────────────────────────────────────
 const ACHIEVEMENTS=[
   {id:'first_habit', icon:'⚔️', name:'FIRST STRIKE',    desc:'Complete your first habit',           condition:()=>getTotalTasksDone()>=1,                              xp:50},
-  {id:'first_day',   icon:'🌟', name:'DAY ONE',          desc:'Complete all habits in a single day', condition:()=>Object.values(S.habitData).some(d=>S.habits.length>0&&S.habits.every(h=>d[h.id])), xp:100},
+  {id:'first_day',   icon:'🌟', name:'DAY ONE',          desc:'Complete all habits in a single day', condition:()=>Object.keys(S.habitData).some(ds=>isDayComplete(ds)), xp:100},
   {id:'streak_3',    icon:'🔥', name:'KINDLING',         desc:'Reach a 3-day streak',                condition:()=>S.streak>=3,                                         xp:150},
   {id:'streak_7',    icon:'🔥', name:'WEEK OF FIRE',     desc:'Reach a 7-day streak',                condition:()=>S.streak>=7,                                         xp:300},
   {id:'streak_14',   icon:'🔥', name:'FORTNIGHT FLAME',  desc:'Reach a 14-day streak',               condition:()=>S.streak>=14,                                        xp:500},
@@ -512,7 +512,7 @@ function toggleHabit(habitId){
   const date=selectedQuestDate||todayKey();
   if(!S.habitData[date]){S.habitData[date]={};if(!S.habitSnapshots)S.habitSnapshots={};if(!S.habitSnapshots[date])S.habitSnapshots[date]=S.habits.map(h=>({...h}));}
   const wasDone=!!S.habitData[date][habitId];
-  const habit=S.habits.find(h=>h.id===habitId);if(!habit)return;
+  const habit=getHabitsForDate(date).find(h=>h.id===habitId);if(!habit)return;
   if(wasDone){
     S.habitData[date][habitId]=false;if(typeof playHabitUntick==='function')playHabitUntick();
     S.xp=Math.max(0,S.xp-habit.xp);S.totalXPEarned=Math.max(0,S.totalXPEarned-habit.xp);
@@ -557,7 +557,7 @@ function checkDayCompletion(date,completing){
   S.totalDaysCompleted=Object.keys(S.habitData).filter(ds=>isDayActive(ds)).length;
   if(completing)setTimeout(()=>showDayComplete(date),400);
   saveState();checkCreatureUnlocks();
-  showSystemNotif('⚡','DAILY QUEST COMPLETE',`All ${S.habits.length} quests accomplished.\nStreak: ${S.streak} days\n+${S.habits.length*20} XP earned.`);
+  const _dc=getHabitsForDate(date);showSystemNotif('⚡','DAILY QUEST COMPLETE',`All ${_dc.length} quests accomplished.\nStreak: ${S.streak} days\n+${_dc.length*20} XP earned.`);
 }
 
 // Quest management
@@ -573,7 +573,7 @@ function addCustomHabit(){if(typeof playUIAddHabit==='function')playUIAddHabit()
   if(!S.habitSnapshots)S.habitSnapshots={};
   if(selDate<today){
     // Past day: add only to that day's snapshot, not the global list
-    if(!S.habitSnapshots[selDate])S.habitSnapshots[selDate]=S.habits.map(h=>({...h}));
+    if(!S.habitSnapshots[selDate])S.habitSnapshots[selDate]=getHabitsForDate(selDate).map(h=>({...h}));
     S.habitSnapshots[selDate].push(newH);
   } else {
     // Today/future: add to global list + refresh today's snapshot
@@ -587,7 +587,7 @@ function removeHabit(habitId){if(typeof playUIRemove==='function')playUIRemove()
   if(!S.habitSnapshots)S.habitSnapshots={};
   if(selDate<today){
     // Past day: remove only from that day's snapshot
-    const snap=S.habitSnapshots[selDate]||(S.habitSnapshots[selDate]=S.habits.map(h=>({...h})));
+    const snap=S.habitSnapshots[selDate]||(S.habitSnapshots[selDate]=getHabitsForDate(selDate).map(h=>({...h})));
     if(snap.length<=1){toast('CANNOT REMOVE — Minimum 1 quest required.');return;}
     if(!confirm('Remove this quest from '+selDate+' only?'))return;
     S.habitSnapshots[selDate]=snap.filter(h=>h.id!==habitId);
@@ -962,7 +962,7 @@ function renderDateStrip(){
     const dKey=`${selY}-${String(selM+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
     const isFuture=dKey>today,isToday=dKey===today,isSel=dKey===selectedQuestDate;
     const data=S.habitData[dKey]||{};
-    const done=S.habits.filter(h=>data[h.id]).length,total=S.habits.length;
+    const dayH=getHabitsForDate(dKey);const done=dayH.filter(h=>data[h.id]).length,total=dayH.length;
     const allDone=done===total&&total>0,someDone=done>0&&!allDone;
     const cls=['cal-day',isSel?'selected':'',isToday?'is-today':'',isFuture?'future':'',allDone?'all-done':someDone?'partial':''].filter(Boolean).join(' ');
     gHtml+=`<div class="${cls}" onclick="selectQuestDate('${dKey}')" title="${dKey}">
@@ -1509,12 +1509,15 @@ function checkWeeklyRecap(){
   const daysDone=gate.days.length;
   const tasksTotal=gate.days.reduce((sum,dKey)=>{
     const dd=S.habitData[dKey]||{};
-    return sum+S.habits.filter(h=>dd[h.id]).length;
+    return sum+getHabitsForDate(dKey).filter(h=>dd[h.id]).length;
   },0);
-  const scores={};S.habits.forEach(h=>{scores[h.id]=gate.days.filter(dKey=>S.habitData[dKey]&&S.habitData[dKey][h.id]).length;});
+  // Build scores across every habit seen that week (per-day aware)
+  const scores={};const allWeekHabits=new Map();
+  gate.days.forEach(dKey=>{getHabitsForDate(dKey).forEach(h=>{if(!allWeekHabits.has(h.id))allWeekHabits.set(h.id,h);});});
+  allWeekHabits.forEach((h,hid)=>{scores[hid]=gate.days.filter(dKey=>S.habitData[dKey]&&S.habitData[dKey][hid]).length;});
   const sorted=Object.entries(scores).sort((a,b)=>b[1]-a[1]);
-  const best=S.habits.find(h=>h.id===sorted[0][0]);
-  const worst=S.habits.find(h=>h.id===sorted[sorted.length-1][0]);
+  const best=allWeekHabits.get(sorted[0]?.[0]);
+  const worst=allWeekHabits.get(sorted[sorted.length-1]?.[0]);
   setTimeout(()=>showWeeklyRecap(lastWeek,daysDone,tasksTotal,best,worst,gate.rank),1200);
 }
 function showWeeklyRecap(week,daysDone,tasks,best,worst,rank){
