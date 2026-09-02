@@ -352,12 +352,13 @@ let S={
   stats:{STR:1,AGI:1,INT:1,VIT:1,SEN:1},
   streak:0,longestStreak:0,totalDaysCompleted:0,
   habits:DEFAULT_HABITS.map(h=>({...h})),
+  habitSnapshots:{},
   habitData:{},storyProgress:0,unlockedCreatures:[],
   weaponTiers:{},completedGates:{},totalXPEarned:0,
   bossProgress:{},bossDefeated:[],
   achievements:[],lastRecapWeek:null,
 };
-function loadState(){const r=localStorage.getItem('hakai_v2');if(r){try{const s=JSON.parse(r);S={...S,...s};if(!S.habits||!S.habits.length)S.habits=DEFAULT_HABITS.map(h=>({...h}));}catch(e){}}}
+function loadState(){const r=localStorage.getItem('hakai_v2');if(r){try{const s=JSON.parse(r);S={...S,...s};if(!S.habits||!S.habits.length)S.habits=DEFAULT_HABITS.map(h=>({...h}));if(!S.habitSnapshots)S.habitSnapshots={};}catch(e){}}}
 let selectedQuestDate=todayKey();
 const _tdy=new Date();
 let calYear=_tdy.getFullYear();let calMonth=_tdy.getMonth();
@@ -376,12 +377,29 @@ function getWeekKey(ds){
   const wk=1+Math.round(((t-w1)/86400000-3+(w1.getDay()+6)%7)/7);
   return `${d.getFullYear()}-W${String(wk).padStart(2,'0')}`;
 }
-function getDayCompletion(ds){const d=S.habitData[ds];if(!d)return 0;return S.habits.filter(h=>d[h.id]).length/S.habits.length;}
+function getHabitsForDate(date){
+  const today=todayKey();
+  // Today or future: always use current list
+  if(date>=today)return S.habits;
+  // Snapshot exists: use stored habit objects for that day
+  if(S.habitSnapshots&&S.habitSnapshots[date]&&S.habitSnapshots[date].length)return S.habitSnapshots[date];
+  // Legacy (no snapshot): infer from habitData keys so old days still show their quests
+  const dayData=S.habitData[date];
+  if(dayData){
+    const ids=Object.keys(dayData);
+    if(ids.length){
+      const mapped=ids.map(id=>S.habits.find(h=>h.id===id)).filter(Boolean);
+      if(mapped.length)return mapped;
+    }
+  }
+  return S.habits;
+}
+function getDayCompletion(ds){const d=S.habitData[ds];if(!d)return 0;const h=getHabitsForDate(ds);if(!h.length)return 0;return h.filter(x=>d[x.id]).length/h.length;}
 function isDayComplete(ds){return getDayCompletion(ds)>=1;}
 function countHabitCompletions(habitId){let c=0;Object.values(S.habitData).forEach(d=>{if(d[habitId])c++;});return c;}
 function getGateClearCount(){return Object.values(S.completedGates).filter(g=>g.days&&g.days.length>=7).length;}
 
-function getTotalTasksDone(){let n=0;Object.values(S.habitData).forEach(d=>S.habits.forEach(h=>{if(d[h.id])n++;}));return n;}
+function getTotalTasksDone(){let n=0;Object.values(S.habitData).forEach(d=>Object.values(d).forEach(v=>{if(v===true)n++;}));return n;}
 
 function getHabitStreak(habitId){
   const today=todayKey();let streak=0;
@@ -491,7 +509,7 @@ function checkBossProgress(){
 
 function toggleHabit(habitId){
   const date=selectedQuestDate||todayKey();
-  if(!S.habitData[date])S.habitData[date]={};
+  if(!S.habitData[date]){S.habitData[date]={};if(!S.habitSnapshots)S.habitSnapshots={};if(!S.habitSnapshots[date])S.habitSnapshots[date]=S.habits.map(h=>({...h}));}
   const wasDone=!!S.habitData[date][habitId];
   const habit=S.habits.find(h=>h.id===habitId);if(!habit)return;
   if(wasDone){
@@ -535,7 +553,7 @@ function checkDayCompletion(date,completing){
   else if(dc>=5)S.completedGates[wk].rank='A';
   else if(dc>=3)S.completedGates[wk].rank='B';
   else S.completedGates[wk].rank='C';
-  S.totalDaysCompleted=Object.values(S.habitData).filter(d=>S.habits.every(h=>d[h.id])).length;
+  S.totalDaysCompleted=Object.keys(S.habitData).filter(ds=>isDayComplete(ds)).length;
   if(completing)setTimeout(()=>showDayComplete(date),400);
   saveState();checkCreatureUnlocks();
   showSystemNotif('⚡','DAILY QUEST COMPLETE',`All ${S.habits.length} quests accomplished.\nStreak: ${S.streak} days\n+${S.habits.length*20} XP earned.`);
@@ -550,12 +568,14 @@ function addCustomHabit(){if(typeof playUIAddHabit==='function')playUIAddHabit()
   if(name.length>30){toast('NAME TOO LONG (max 30 chars)');return;}
   const id='custom_'+Date.now();
   S.habits.push({id,name,desc:'Custom quest.',icon,stat,xp:20,isDefault:false});
+  if(!S.habitSnapshots)S.habitSnapshots={};S.habitSnapshots[todayKey()]=S.habits.map(h=>({...h}));
   saveState();renderQuests();renderQuestMgmt();toast('QUEST ADDED: '+name);
 }
 function removeHabit(habitId){if(typeof playUIRemove==='function')playUIRemove();
   if(S.habits.length<=1){toast('CANNOT REMOVE — Minimum 1 quest required.');return;}
   if(!confirm('Remove this quest? Progress for this quest will be preserved in history.'))return;
   S.habits=S.habits.filter(h=>h.id!==habitId);
+  if(!S.habitSnapshots)S.habitSnapshots={};S.habitSnapshots[todayKey()]=S.habits.map(h=>({...h}));
   saveState();renderQuests();renderQuestMgmt();toast('QUEST REMOVED');
 }
 let questMgmtOpen=false;
@@ -952,7 +972,8 @@ function renderQuests(){
     lbl.innerHTML=`<span class="qdl-tag ${tag}">${label}</span>`;
   }
   const container=document.getElementById('quest-grid');container.innerHTML='';
-  S.habits.forEach(h=>{
+  const habitsForDay=getHabitsForDate(date);
+  habitsForDay.forEach(h=>{
     const done=!!data[h.id];const w=getEquippedWeapon(h.id);
     const div=document.createElement('div');
     div.className='quest-card'+(done?' done':'');div.id='card-'+h.id;
@@ -979,14 +1000,14 @@ function renderQuests(){
       </button>`;
     container.appendChild(div);
   });
-  const total=S.habits.length,doneCount=S.habits.filter(h=>data[h.id]).length;
+  const total=habitsForDay.length,doneCount=habitsForDay.filter(h=>data[h.id]).length;
   const pct=total>0?Math.round((doneCount/total)*100):0;
   const fill=document.getElementById('daily-bar-fill');
   fill.style.width=pct+'%';fill.className='daily-bar-fill'+(pct>=100?' full':'');
   document.getElementById('daily-progress-value').textContent=`${doneCount}/${total} QUESTS — ${pct}% XP`;
   document.getElementById('streak-current').textContent=S.streak;
   document.getElementById('streak-longest').textContent=S.longestStreak;
-  const liveDays=Object.values(S.habitData).filter(d=>S.habits.length>0&&S.habits.every(h=>d[h.id])).length;S.totalDaysCompleted=liveDays;document.getElementById('streak-total-days').textContent=liveDays;const ttd=document.getElementById('streak-tasks-done');if(ttd)ttd.textContent=getTotalTasksDone();
+  const liveDays=Object.keys(S.habitData).filter(ds=>isDayComplete(ds)).length;S.totalDaysCompleted=liveDays;document.getElementById('streak-total-days').textContent=liveDays;const ttd=document.getElementById('streak-tasks-done');if(ttd)ttd.textContent=getTotalTasksDone();
 }
 
 function renderAscension(){
@@ -1277,7 +1298,7 @@ function toggleGateDay(dKey, wk){
   else if(dc>=3)gate.rank='B';
   else if(dc>0)gate.rank='C';
   else gate.rank='';
-  S.totalDaysCompleted=Object.values(S.habitData).filter(d=>S.habits.every(h=>d[h.id])).length;
+  S.totalDaysCompleted=Object.keys(S.habitData).filter(ds=>isDayComplete(ds)).length;
   recalcStreak();saveState();renderGates();renderSidebar();renderHeader();
   if(typeof playUIClick==='function') playUIClick();
   toast(idx>=0 ? '📅 Day removed' : '✅ Day marked complete');
