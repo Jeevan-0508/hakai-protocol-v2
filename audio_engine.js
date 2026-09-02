@@ -286,12 +286,12 @@
     btn.textContent = muted ? '🔇' : '🔊';
     btn.title = 'Toggle Sound';
     btn.style.cssText = `
-      position:fixed; top:12px; right:130px; z-index:9000;
+      flex:0 0 auto;
       background:rgba(20,10,40,.85); border:1px solid #3b2060;
-      color:#a78bfa; width:34px; height:34px; border-radius:8px;
-      cursor:pointer; font-size:16px; display:flex;
+      color:#a78bfa; width:30px; height:30px; border-radius:8px;
+      cursor:pointer; font-size:14px; display:flex;
       align-items:center; justify-content:center;
-      backdrop-filter:blur(6px); transition:all .2s;
+      backdrop-filter:blur(6px); transition:all .2s; margin-left:10px;
     `;
     btn.onmouseenter = () => btn.style.borderColor = '#7c3aed';
     btn.onmouseleave = () => btn.style.borderColor = '#3b2060';
@@ -299,7 +299,16 @@
       const nowMuted = toggleMute();
       if(typeof toast === 'function') toast(nowMuted ? '🔇 Sound Off' : '🔊 Sound On');
     };
-    document.body.appendChild(btn);
+    const header = document.querySelector('.game-header');
+    const rankBadge = document.getElementById('header-rank-badge');
+    if(header && rankBadge){
+      header.insertBefore(btn, rankBadge);
+    }else if(header){
+      header.appendChild(btn);
+    }else{
+      btn.style.position='fixed';btn.style.top='12px';btn.style.right='130px';btn.style.zIndex='9000';
+      document.body.appendChild(btn);
+    }
   });
 
   /* 13 — Cinematic boot hum — low sustained drone with slow sweep */
