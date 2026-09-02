@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>HAKAI PROTOCOL V2</title>
+  <title>HAKAI PROTOCOL — BREAK WHAT LIMITS YOU</title>
   <link rel="manifest" href="manifest.json">
   <link rel="icon" href="favicon.ico" type="image/x-icon">
   <meta name="theme-color" content="#7c3aed">
@@ -11,7 +11,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="HAKAI">
   <link rel="apple-touch-icon" href="icons/icon-192.png">
-  <meta name="description" content="A real-life RPG where your habits are your power. Level up by working out, reading, coding, meditating, and planning.">
+  <meta name="description" content="HAKAI PROTOCOL — The gap between who you are and who you could be is measurable. This is the system that closes it.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;600;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
@@ -26,12 +26,12 @@
      INTRO SCREEN
      ═══════════════════════════════════════════════════════ -->
 <div id="screen-intro">
-  <div class="intro-system-tag">[ SYSTEM ALERT ]</div>
+  <div class="intro-system-tag">[ HAKAI PROTOCOL — INITIALIZATION SEQUENCE ]</div>
   <div class="intro-title">HAKAI PROTOCOL</div>
-  <div class="intro-subtitle">V 2 . 0 &nbsp;&nbsp; HUNTER SYSTEM</div>
+  <div class="intro-subtitle">BREAK WHAT LIMITS YOU.&nbsp;&nbsp;BECOME WHAT REMAINS.</div>
   <div class="intro-lines" id="intro-lines"></div>
   <div class="intro-btn-row" id="intro-btn-row" style="opacity:0">
-    <button class="intro-btn" onclick="if(typeof playUIClick==='function')playUIClick();nextIntroLine()">[ CONTINUE ]</button>
+    <button class="intro-btn" onclick="if(typeof playUIClick==='function')playUIClick();nextIntroLine()">[ ACKNOWLEDGE ]</button>
     <button class="intro-btn skip" onclick="skipIntro()">SKIP</button>
   </div>
 </div>
@@ -40,14 +40,15 @@
      CHARACTER SELECT
      ═══════════════════════════════════════════════════════ -->
 <div id="screen-select">
-  <div class="select-tag">[ HUNTER REGISTRATION ]</div>
-  <div class="select-title">SELECT YOUR HUNTER</div>
+  <div class="select-tag">[ HUNTER DESIGNATION — ARCHETYPE CALIBRATION ]</div>
+  <div class="select-title">CHOOSE YOUR ARCHETYPE</div>
+  <div class="select-lore">The Protocol has identified your archetype. This designation determines your starting path — not your ceiling.<br>Both hunters access all abilities. Choose the face that matches your nature.</div>
   <div class="select-grid">
     <div class="char-card" onclick="if(typeof playUISelect==='function')playUISelect();selectChar('STRIKER')">
       <img src="striker_jk.png" alt="Striker">
       <div class="char-info">
         <div class="char-name">STRIKER</div>
-        <div class="char-class">Shadow Hunter &nbsp;|&nbsp; Born for the void</div>
+        <div class="char-class">Shadow Hunter &nbsp;|&nbsp; The gap closes through force</div>
         <div class="char-stats">
           <span class="char-stat-pill">STR ●●●●○</span>
           <span class="char-stat-pill">AGI ●●●○○</span>
@@ -60,7 +61,7 @@
       <img src="cath_gems.png" alt="Cath Gems">
       <div class="char-info">
         <div class="char-name">CATH GEMS</div>
-        <div class="char-class">Arcane Walker &nbsp;|&nbsp; The system chose you</div>
+        <div class="char-class">Arcane Walker &nbsp;|&nbsp; The gap closes through understanding</div>
         <div class="char-stats">
           <span class="char-stat-pill">INT ●●●●○</span>
           <span class="char-stat-pill">SEN ●●●○○</span>

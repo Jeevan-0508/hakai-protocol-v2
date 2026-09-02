@@ -1,6 +1,6 @@
 // HAKAI PROTOCOL V2 — ENGINE (constants + base data)
 const RANKS=[
-  {rank:'E', label:'E-RANK', minLevel:1,  color:'#94a3b8',desc:'Unawakened Hunter',cls:'Shadow Initiate'},
+  {rank:'E', label:'E-RANK', minLevel:1,  color:'#94a3b8',desc:'Gap Detected. Protocol Active.',cls:'Shadow Initiate'},
   {rank:'D', label:'D-RANK', minLevel:11, color:'#4ade80',desc:'Awakened Hunter',  cls:'Shadow Stalker'},
   {rank:'C', label:'C-RANK', minLevel:26, color:'#60a5fa',desc:'Field Hunter',     cls:'Gate Breaker'},
   {rank:'B', label:'B-RANK', minLevel:41, color:'#c084fc',desc:'Elite Hunter',     cls:'Void Walker'},
@@ -296,8 +296,8 @@ const BOSSES=[
    hpRequired:100,reward:'UNLOCKS: Void Cryptid + Void Sword Tier 5 + TITLE: Protocol Master'},
 ];// STORY DATA
 const STORY=[
-  {arc:'The Awakening',title:'The Glitch',          text:'The first sign is always subtle. A recurring thought. A pattern you did not design. Something in the machine has noticed you.'},
-  {arc:'The Awakening',title:'The Interface',       text:'Suddenly you see it — the system that was always there. Tracking. Measuring. Waiting. The interface is not new. You are.'},
+  {arc:'The Awakening',title:'The Gap',             text:'The Protocol does not choose. It measures. Somewhere between who you are and who you could be, there is a gap. The system has found yours. It is larger than you think.'},
+  {arc:'The Awakening',title:'The Interface',       text:'The system was not built for you. It was already running. Tracking patterns across time. It noticed yours because your gap has a specific shape — one it has seen close before, in others who chose to close it.'},
   {arc:'The Awakening',title:'The First Choice',    text:'Every morning is a fork. Left is comfort. Right is unknown. You have been going left so long you forgot right exists.'},
   {arc:'The Awakening',title:'Resistance',          text:'The body protests. The mind invents reasons. This is not weakness — this is the immune response of your old self trying to survive.'},
   {arc:'The Awakening',title:'Seed of Awakening',   text:'Beneath all resistance, something ancient stirs. Not motivated by outcomes. Driven by nature. A hunter remembers how to hunt.'},
@@ -306,7 +306,7 @@ const STORY=[
   {arc:'Resistance',   title:'Signal and Noise',    text:'Most of what you feel is noise. The signal is small: just one more repetition, one more page, one more line of code.'},
   {arc:'Resistance',   title:'The Pain Protocol',   text:'Pain is not random. It has a direction. Follow it inward and you find the resistance point — the exact location of your next evolution.'},
   {arc:'Resistance',   title:'The Compound Effect', text:'You did not notice the first nine floors. You will notice the next ten. This is the silent math of consistency.'},
-  {arc:'The Mechanism',title:'Identity Shift',      text:'You are not trying to become someone. You are revealing who was always underneath the accumulated inaction.'},
+  {arc:'The Mechanism',title:'Identity Shift',      text:'The habits did not build someone new. They removed the layers of accumulated inaction sitting on top of who you always were. HAKAI. Destruction as revelation.'},
   {arc:'The Mechanism',title:'The Operating System',text:'Every habit is code. Every completion is a commit to a new version of yourself. The system compiles slowly, then all at once.'},
   {arc:'The Mechanism',title:'Pattern Recognition', text:'Your enemies are patterns, not events. Once you see a pattern, you cannot un-see it. This is the beginning of control.'},
   {arc:'The Mechanism',title:'Void Training',       text:'Some days you train without motivation. Without inspiration. In the void. These are the most important days. The system records them all.'},
@@ -1574,7 +1574,20 @@ function switchTab(tabId){if(typeof playUINav==='function')playUINav();{const s=
 }
 
 // INTRO
-const INTRO_LINES=['...','ERROR: UNIDENTIFIED SIGNAL DETECTED.','SCANNING... SCANNING...','HUNTER CANDIDATE IDENTIFIED.','THREAT LEVEL: UNKNOWN.','INITIATING HAKAI PROTOCOL...','WELCOME, HUNTER.','THE SYSTEM HAS CHOSEN YOU.'];
+const INTRO_LINES=[
+  '> ANOMALY DETECTED. SCANNING...',
+  '> PATTERN CONFIRMED: HUMAN. COGNITIVE SIGNATURE UNIQUE.',
+  '> RUNNING GAP ANALYSIS — CURRENT OUTPUT vs POSSIBLE OUTPUT.',
+  '> WARNING: THE GAP IS SIGNIFICANT.',
+  '> ROOT CAUSE: ENTROPY. DISTRACTION. COMFORT MISTAKEN FOR IDENTITY.',
+  '> THIS IS NOT A FLAW. THIS IS A STARTING CONDITION.',
+  '> HAKAI PROTOCOL — ACTIVATING.',
+  '> HAKAI: TO BREAK. TO DESTROY WHAT LIMITS YOU.',
+  '> THE SYSTEM DOES NOT GRANT POWER.',
+  '> IT REVEALS WHAT WAS ALWAYS THERE.',
+  '> HUNTER DESIGNATION REQUIRED.',
+  '> PROCEED.',
+];
 let introIdx=0,introTyping=false,typeInterval=null;
 function typewriterLine(text,el,cb){
   el.innerHTML='';introTyping=true;let i=0;clearInterval(typeInterval);
