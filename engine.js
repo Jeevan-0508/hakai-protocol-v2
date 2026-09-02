@@ -374,9 +374,9 @@ function selectQuestDate(dKey){
     if(dayData&&Object.keys(dayData).length){
       const ids=Object.keys(dayData);
       const snap=ids.map(id=>S.habits.find(h=>h.id===id)||DEFAULT_HABITS.find(h=>h.id===id)).filter(Boolean);
-      S.habitSnapshots[dKey]=snap.length?snap:S.habits.map(h=>({...h}));
+      S.habitSnapshots[dKey]=snap.length?snap:DEFAULT_HABITS.map(h=>({...h}));
     } else {
-      S.habitSnapshots[dKey]=S.habits.map(h=>({...h}));
+      S.habitSnapshots[dKey]=DEFAULT_HABITS.map(h=>({...h}));
     }
     saveState();
   }
@@ -530,7 +530,7 @@ function checkBossProgress(){
 
 function toggleHabit(habitId){
   const date=selectedQuestDate||todayKey();
-  if(!S.habitData[date]){S.habitData[date]={};if(!S.habitSnapshots)S.habitSnapshots={};if(!S.habitSnapshots[date])S.habitSnapshots[date]=S.habits.map(h=>({...h}));}
+  if(!S.habitData[date]){S.habitData[date]={};if(!S.habitSnapshots)S.habitSnapshots={};if(!S.habitSnapshots[date]){const _td=todayKey();S.habitSnapshots[date]=date>=_td?S.habits.map(h=>({...h})):DEFAULT_HABITS.map(h=>({...h}));}}
   const wasDone=!!S.habitData[date][habitId];
   const habit=getHabitsForDate(date).find(h=>h.id===habitId);if(!habit)return;
   if(wasDone){
