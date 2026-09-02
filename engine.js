@@ -1440,6 +1440,43 @@ function toggleYearSection(yr){
 }
 
 
+
+function renderCalendar(){
+  // Heatmap — last 90 days
+  const grid=document.getElementById('heatmap-grid');
+  if(grid){
+    grid.innerHTML='';
+    for(let i=89;i>=0;i--){
+      const d=new Date();d.setDate(d.getDate()-i);
+      const key=d.toISOString().split('T')[0];
+      const pct=getDayCompletion(key);
+      let val=0;
+      if(pct>0)val=1;
+      if(pct>=0.25)val=2;
+      if(pct>=0.5)val=3;
+      if(pct>=0.75)val=4;
+      if(pct>=1)val=5;
+      const cell=document.createElement('div');
+      cell.className='heatmap-cell';
+      cell.dataset.val=val;
+      cell.title=key+': '+(Math.round(pct*100))+'%';
+      grid.appendChild(cell);
+    }
+  }
+  // Stats table
+  const rank=getRank(S.level);
+  const el=id=>document.getElementById(id);
+  if(el('cal-level'))el('cal-level').textContent=S.level;
+  if(el('cal-rank'))el('cal-rank').textContent=rank.label;
+  if(el('cal-total-xp'))el('cal-total-xp').textContent=(S.totalXPEarned||0)+' XP';
+  if(el('cal-days'))el('cal-days').textContent=S.totalDaysCompleted||0;
+  if(el('cal-streak'))el('cal-streak').textContent=S.streak||0;
+  if(el('cal-longest'))el('cal-longest').textContent=S.longestStreak||0;
+  if(el('cal-shadows'))el('cal-shadows').textContent=(S.unlockedCreatures||[]).length+'/'+CREATURES.length;
+  if(el('cal-floors'))el('cal-floors').textContent=(S.storyProgress||0)+'/30';
+  // Draw radar
+  setTimeout(drawRadarChart,50);
+}
 function drawRadarChart(){
   const canvas=document.getElementById('stats-radar');
   if(!canvas||!canvas.getContext)return;
