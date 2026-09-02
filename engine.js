@@ -1712,8 +1712,187 @@ function selectChar_reset(){
   const sel=document.getElementById('screen-select');sel.style.opacity='1';sel.style.display='';sel.classList.add('visible');
 }
 
+
+
+/* ═══════════════════════════════════════════════
+   LAUNCH CINEMATIC — runs every time on open
+═══════════════════════════════════════════════ */
+function showLaunchCinematic(onComplete){
+  const returning = !!(S && S.playerName);
+  const name = returning ? S.playerName : null;
+  const level = returning ? (S.level||1) : null;
+  const streak = returning ? (S.streak||0) : null;
+  const rank = returning ? getRank(S.level||1).label : null;
+
+  // Inject styles
+  const style = document.createElement('style');
+  style.id = 'cin-style';
+  style.textContent = `
+    #cin{position:fixed;inset:0;z-index:99999;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;cursor:pointer;}
+    #cin canvas{position:absolute;inset:0;width:100%;height:100%;opacity:.18;}
+    #cin-inner{position:relative;z-index:2;text-align:center;width:100%;max-width:700px;padding:0 24px;}
+    #cin-boot{font-family:'Share Tech Mono',monospace;font-size:.72rem;color:rgba(100,220,255,.6);letter-spacing:2px;min-height:80px;text-align:left;margin:0 auto 28px;max-width:420px;white-space:pre-wrap;}
+    #cin-logo{font-family:'Orbitron',sans-serif;font-size:clamp(2.2rem,8vw,4.8rem);font-weight:900;letter-spacing:.15em;color:#fff;text-shadow:0 0 40px rgba(109,40,217,.8),0 0 80px rgba(109,40,217,.3);opacity:0;transform:scale(.92);transition:opacity .5s ease,transform .5s ease;}
+    #cin-logo.show{opacity:1;transform:scale(1);}
+    #cin-logo.glitch{animation:cGlitch .4s steps(2,end);}
+    #cin-sub{font-family:'Orbitron',sans-serif;font-size:clamp(.5rem,2vw,.75rem);letter-spacing:.35em;color:rgba(109,40,217,.7);margin-top:10px;opacity:0;transition:opacity .6s ease .2s;}
+    #cin-sub.show{opacity:1;}
+    #cin-welcome{font-family:'Share Tech Mono',monospace;font-size:.8rem;color:rgba(245,158,11,.9);letter-spacing:2px;margin-top:32px;min-height:28px;opacity:0;transition:opacity .4s ease;}
+    #cin-welcome.show{opacity:1;}
+    #cin-bar-wrap{width:280px;height:3px;background:rgba(109,40,217,.18);border-radius:2px;margin:28px auto 0;overflow:hidden;opacity:0;transition:opacity .3s ease;}
+    #cin-bar-wrap.show{opacity:1;}
+    #cin-bar{height:100%;width:0%;background:linear-gradient(90deg,#6d28d9,#f59e0b);border-radius:2px;transition:width 1.4s cubic-bezier(.4,0,.2,1);}
+    #cin-bar.full{width:100%;}
+    #cin-skip{position:absolute;bottom:28px;right:32px;font-family:'Orbitron',sans-serif;font-size:.42rem;letter-spacing:2px;color:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.1);padding:6px 14px;border-radius:2px;transition:.2s;}
+    #cin-skip:hover{color:rgba(255,255,255,.5);border-color:rgba(255,255,255,.3);}
+    #cin-flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;transition:opacity .12s ease;}
+    @keyframes cGlitch{
+      0%{text-shadow:2px 0 #f59e0b,-2px 0 #6d28d9,0 0 40px rgba(109,40,217,.8);clip-path:inset(10% 0 80% 0);}
+      25%{text-shadow:-2px 0 #f59e0b,2px 0 #6d28d9,0 0 40px rgba(109,40,217,.8);clip-path:inset(60% 0 10% 0);}
+      50%{text-shadow:2px 0 #f59e0b,-2px 0 #6d28d9,0 0 40px rgba(109,40,217,.8);clip-path:inset(30% 0 50% 0);}
+      75%{text-shadow:-2px 0 #f59e0b,2px 0 #6d28d9,0 0 40px rgba(109,40,217,.8);clip-path:inset(0% 0 0% 0);}
+      100%{text-shadow:0 0 40px rgba(109,40,217,.8),0 0 80px rgba(109,40,217,.3);clip-path:none;}
+    }
+    @keyframes cFlickerIn{
+      0%,18%,22%,25%,53%,57%,100%{opacity:1;}
+      20%,24%,55%{opacity:0;}
+    }
+  `;
+  document.head.appendChild(style);
+
+  // Build overlay
+  const cin = document.createElement('div');
+  cin.id = 'cin';
+  cin.innerHTML = `
+    <canvas id="cin-canvas"></canvas>
+    <div id="cin-inner">
+      <div id="cin-boot"></div>
+      <div id="cin-logo">HAKAI<br>PROTOCOL</div>
+      <div id="cin-sub">BREAK WHAT LIMITS YOU &nbsp;·&nbsp; BECOME WHAT REMAINS</div>
+      <div id="cin-welcome"></div>
+      <div id="cin-bar-wrap"><div id="cin-bar"></div></div>
+    </div>
+    <div id="cin-skip">[ SKIP ]</div>
+    <div id="cin-flash"></div>
+  `;
+  document.body.appendChild(cin);
+
+  // Particle canvas
+  const canvas = document.getElementById('cin-canvas');
+  canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+  const ctx2 = canvas.getContext('2d');
+  const particles = Array.from({length:60},()=>({
+    x:Math.random()*canvas.width, y:Math.random()*canvas.height,
+    vx:(Math.random()-.5)*.4, vy:(Math.random()-.5)*.4,
+    r:Math.random()*1.5+.5,
+    color:Math.random()>.5?'rgba(109,40,217,':'rgba(245,158,11,'
+  }));
+  let animFrame;
+  function drawParticles(){
+    ctx2.clearRect(0,0,canvas.width,canvas.height);
+    // grid
+    ctx2.strokeStyle='rgba(109,40,217,.06)';ctx2.lineWidth=1;
+    for(let x=0;x<canvas.width;x+=40){ctx2.beginPath();ctx2.moveTo(x,0);ctx2.lineTo(x,canvas.height);ctx2.stroke();}
+    for(let y=0;y<canvas.height;y+=40){ctx2.beginPath();ctx2.moveTo(0,y);ctx2.lineTo(canvas.width,y);ctx2.stroke();}
+    particles.forEach(p=>{
+      p.x+=p.vx;p.y+=p.vy;
+      if(p.x<0)p.x=canvas.width;if(p.x>canvas.width)p.x=0;
+      if(p.y<0)p.y=canvas.height;if(p.y>canvas.height)p.y=0;
+      ctx2.beginPath();ctx2.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx2.fillStyle=p.color+'.7)';ctx2.fill();
+    });
+    animFrame=requestAnimationFrame(drawParticles);
+  }
+  drawParticles();
+
+  // Typewriter helper
+  function typeInto(el,text,speed,done){
+    let i=0;el.textContent='';
+    const iv=setInterval(()=>{
+      el.textContent+=text[i++];
+      if(i>=text.length){clearInterval(iv);if(done)done();}
+    },speed);
+    return iv;
+  }
+
+  // Cleanup + enter game
+  let completed=false;
+  function enterGame(){
+    if(completed)return;completed=true;
+    cancelAnimationFrame(animFrame);
+    const flash=document.getElementById('cin-flash');
+    flash.style.opacity='1';
+    setTimeout(()=>{
+      cin.style.opacity='0';cin.style.transition='opacity .5s ease';
+      setTimeout(()=>{
+        cin.remove();document.getElementById('cin-style').remove();
+        onComplete();
+      },500);
+    },120);
+  }
+
+  // Skip handler
+  cin.addEventListener('click',enterGame);
+
+  // SEQUENCE
+  const bootEl=document.getElementById('cin-boot');
+  const logo=document.getElementById('cin-logo');
+  const sub=document.getElementById('cin-sub');
+  const wel=document.getElementById('cin-welcome');
+  const barW=document.getElementById('cin-bar-wrap');
+  const bar=document.getElementById('cin-bar');
+
+  const lines=[
+    '> HAKAI PROTOCOL — INITIALIZATION SEQUENCE',
+    returning
+      ? '> HUNTER FILE DETECTED. LOADING PROFILE...'
+      : '> NO HUNTER FILE FOUND. FIRST-TIME REGISTRATION REQUIRED.',
+    '> CALIBRATING NEURAL INTERFACE...',
+    '> SYSTEM READY.',
+  ];
+
+  let lineIdx=0;
+  function nextLine(){
+    if(lineIdx>=lines.length){
+      // Show logo
+      logo.classList.add('show');
+      setTimeout(()=>logo.classList.add('glitch'),400);
+      setTimeout(()=>sub.classList.add('show'),700);
+      // Welcome back or register
+      setTimeout(()=>{
+        wel.classList.add('show');
+        if(returning){
+          typeInto(wel,'> WELCOME BACK, '+name+' · LV '+level+' '+rank+' · STREAK '+streak+' DAYS',22,()=>{
+            barW.classList.add('show');
+            setTimeout(()=>bar.classList.add('full'),80);
+            setTimeout(enterGame,1700);
+          });
+        } else {
+          typeInto(wel,'> HUNTER DESIGNATION REQUIRED. CHOOSE YOUR ARCHETYPE.',22,()=>{
+            barW.classList.add('show');
+            setTimeout(()=>bar.classList.add('full'),80);
+            setTimeout(enterGame,1700);
+          });
+        }
+      },1100);
+      return;
+    }
+    const line=lines[lineIdx++];
+    typeInto(bootEl,(bootEl.textContent?'\n':'')+line,28,()=>{
+      setTimeout(nextLine,220);
+    });
+  }
+  setTimeout(nextLine,200);
+}
+
 window.addEventListener('DOMContentLoaded',()=>{
   loadState();recalcStreak();
-  if(S.playerName){document.getElementById('screen-intro').style.display='none';showGame();}
-  else startIntro();
+  // Always hide the old intro screen
+  const introEl=document.getElementById('screen-intro');
+  if(introEl)introEl.style.display='none';
+  // Always play cinematic, then go to game or char select
+  showLaunchCinematic(()=>{
+    if(S.playerName){showGame();}
+    else{const sel=document.getElementById('screen-select');if(sel){sel.style.display='';sel.classList.add('visible');}}
+  });
 });
