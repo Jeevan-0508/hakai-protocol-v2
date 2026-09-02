@@ -38,6 +38,14 @@ The concept: every time you work out, read, code, meditate, or plan your day —
 
 > *The system does not reward potential. It rewards execution.*
 
+## ✨ v2.1 Additions
+
+- **Launch Cinematic** — full boot-sequence intro every time the app opens: typed terminal text, glitching title logo, particle-field canvas, welcome-back message. Gated behind a "click to initialize" prompt so audio complies with browser autoplay policy. Plays once fully, then fast-replays for the rest of the day.
+- **Synthesized Audio** (`audio_engine.js`) — every sound effect is generated live via the Web Audio API, zero audio files shipped. Covers UI clicks/nav, habit complete/untick, level up, boss damage, cinematic hum/stinger/whoosh. Mute toggle persists in the header.
+- **Fullscreen Toggle** — one-click immersive mode in the header, Esc exits natively.
+- **Stat-Gain Animation** — completing a quest now visually flies the stat gain into the sidebar instead of just updating a number silently.
+- **Calendar / Records Tab Fixed** — heatmap, stats table and radar chart now actually render (was a dead `renderCalendar()` call in earlier builds — silently no-op'd, tab appeared blank).
+
 ---
 
 ## 🛠 Technologies Used
@@ -60,18 +68,20 @@ The concept: every time you work out, read, code, meditate, or plan your day —
 
 ### Engine Structure
 
-The game engine is split into 8 modular files (concatenated into one `engine.js` at build time):
+The engine lives in a single `engine.js` (~2,000 lines) plus two companion files that load after it:
 
 ```
-ep1.js  →  Constants & State Schema      (RANKS, CHARACTERS, DEFAULT_STATE)
-ep2.js  →  Creature Database             (14 creatures, abilities, unlock conditions)
-ep3.js  →  Weapons, Bosses, Gates Data   (5 weapon lines × 5 tiers, 5 bosses)
-ep4.js  →  Story & Quest Data            (6 arcs, 30+ quests, lore entries)
-ep5.js  →  Game Logic Core               (XP, leveling, unlock checks, streak calc)
-ep6.js  →  Modal & Notification System   (creature modal, boss modal, weapon drop)
-ep7.js  →  Habit & Gate Rendering        (habit cards, gate weekly tracker)
-ep8.js  →  Full UI Renderer              (army, armory, bosses, calendar, HUD)
+engine.js         →  Constants, state, XP/leveling, unlock logic,
+                      quests, gates, bosses, calendar/records rendering,
+                      launch cinematic, fullscreen toggle, stat-gain FX
+audio_engine.js   →  Web Audio synthesized SFX (no audio files — every
+                      sound is generated in-browser), mute toggle,
+                      cinematic hum/stinger/whoosh
+dev_panel.js      →  Developer sandbox overlay (level/XP override,
+                      creature/boss debug tools) — hidden behind dev/ flag
 ```
+
+No build step, no bundler — the three files are loaded directly by `index.html` in that order.
 
 ### 🔄 Core Game Loop
 
@@ -295,7 +305,7 @@ HUD + All Tabs"]
 ### CSS Architecture
 
 ```
-style.css (414 lines base)  +  css_add.css (modular additions)
+style.css (~1,650 lines, single file)
     │
     ├── CSS Custom Properties (--bg-dark, --cyan, --blue-glow...)
     ├── Glassmorphism panels (backdrop-filter: blur)
@@ -305,8 +315,12 @@ style.css (414 lines base)  +  css_add.css (modular additions)
     ├── Epic boss card system (per-boss theme colors)
     ├── Creature modal (Ken Burns zoom, scan line, entrance anim)
     ├── Boss modal (full-art, color-matched border glow)
-    └── 15+ @keyframe animations
+    ├── Stat-gain fly-to-sidebar animation, gate/reward shimmer
+    └── 20+ @keyframe animations
 ```
+
+The launch cinematic (boot text, glitch title, particle canvas) injects its own `<style id="cin-style">`
+block at runtime instead of living in `style.css` — it's fully self-contained and removes itself on completion.
 
 ---
 
@@ -505,8 +519,9 @@ python -m SimpleHTTPServer 8888
 ```
 hakai-protocol-v2/
 ├── index.html              # Main game shell (all screens + modals)
-├── engine.js               # Full game engine (concatenated from ep1–ep8)
-├── style.css               # All styles (base + modular additions)
+├── engine.js               # Full game engine (state, logic, rendering, cinematic)
+├── audio_engine.js         # Synthesized sound effects + mute toggle
+├── style.css               # All styles
 ├── dev_panel.js            # Developer sandbox overlay
 ├── dev/
 │   └── index.html          # Dev mode activator (sets session flag → redirects)
