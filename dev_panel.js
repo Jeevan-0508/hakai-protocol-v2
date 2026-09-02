@@ -307,9 +307,9 @@ if (!_devAllowed) {
       S.streak = 100; S.longestStreak = 100;
       S.totalDaysCompleted = 999;   // completions check
       S.storyProgress = 25;         // floor check
-      // fake habitData so countHabitCompletions returns 999
+      // fake habitData so countHabitCompletions clears the highest weapon tier (200 completions = Legendary)
       if(!S.habitData) S.habitData = {};
-      for(let i = 0; i < 10; i++) {
+      for(let i = 0; i < 200; i++) {
         S.habitData['dev-day-'+i] = {workout:true,read:true,code:true,meditate:true,plan:true};
       }
       // fake completedGates so getGateClearCount() returns >= 3
