@@ -1798,6 +1798,9 @@ function showLaunchCinematic(onComplete){
     #cin-skip{position:absolute;bottom:28px;right:32px;font-family:'Orbitron',sans-serif;font-size:.42rem;letter-spacing:2px;color:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.1);padding:6px 14px;border-radius:2px;transition:.2s;}
     #cin-skip:hover{color:rgba(255,255,255,.5);border-color:rgba(255,255,255,.3);}
     #cin-flash{position:absolute;inset:0;background:#fff;opacity:0;pointer-events:none;transition:opacity .12s ease;}
+    #cin-gate{position:absolute;inset:0;z-index:10;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.35);}
+    #cin-gate span{font-family:'Orbitron',sans-serif;font-size:.55rem;letter-spacing:3px;color:rgba(255,255,255,.65);border:1px solid rgba(109,40,217,.5);padding:14px 26px;border-radius:4px;animation:cGatePulse 1.3s ease-in-out infinite;background:rgba(10,5,20,.5);}
+    @keyframes cGatePulse{0%,100%{opacity:.55;box-shadow:0 0 0 rgba(109,40,217,0);}50%{opacity:1;box-shadow:0 0 20px rgba(109,40,217,.35);}}
     @keyframes cGlitch{
       0%{text-shadow:2px 0 #f59e0b,-2px 0 #6d28d9,0 0 40px rgba(109,40,217,.8);clip-path:inset(10% 0 80% 0);}
       25%{text-shadow:-2px 0 #f59e0b,2px 0 #6d28d9,0 0 40px rgba(109,40,217,.8);clip-path:inset(60% 0 10% 0);}
@@ -1852,8 +1855,6 @@ function showLaunchCinematic(onComplete){
   }
   drawParticles();
 
-  if(typeof playCinematicHum==='function')playCinematicHum();
-
   function typeInto(el,text,speed,done){
     let i=0;el.textContent='';
     const iv=setInterval(()=>{
@@ -1891,62 +1892,82 @@ function showLaunchCinematic(onComplete){
     ? '> WELCOME BACK, '+name+' · LV '+level+' '+rank+' · STREAK '+streak+' DAYS'
     : '> HUNTER DESIGNATION REQUIRED. CHOOSE YOUR ARCHETYPE.';
 
-  if(fastMode){
-    // FAST REPLAY — same-day reopen: quick logo flash, no boot lines
-    document.getElementById('cin-skip').style.display='none';
-    logo.classList.add('show');
-    setTimeout(()=>{
-      logo.classList.add('glitch');
-      if(typeof playCinematicStinger==='function')playCinematicStinger();
-    },150);
-    setTimeout(()=>sub.classList.add('show'),350);
-    setTimeout(()=>{
-      wel.classList.add('show');
-      wel.textContent=welcomeLine;
-      if(typeof playCinematicWhoosh==='function')playCinematicWhoosh();
-      barW.classList.add('show');
-      setTimeout(()=>bar.classList.add('full'),60);
-      setTimeout(enterGame,900);
-    },550);
-    return;
-  }
-
-  // FULL CINEMATIC — first open of the day
-  const lines=[
-    '> HAKAI PROTOCOL — INITIALIZATION SEQUENCE',
-    returning
-      ? '> HUNTER FILE DETECTED. LOADING PROFILE...'
-      : '> NO HUNTER FILE FOUND. FIRST-TIME REGISTRATION REQUIRED.',
-    '> CALIBRATING NEURAL INTERFACE...',
-    '> SYSTEM READY.',
-  ];
-
-  let lineIdx=0;
-  function nextLine(){
-    if(lineIdx>=lines.length){
+  function beginSequence(){
+    if(!fastMode&&typeof playCinematicHum==='function')playCinematicHum();
+    if(fastMode){
+      // FAST REPLAY — same-day reopen: quick logo flash, no boot lines
+      const skipBtn=document.getElementById('cin-skip');if(skipBtn)skipBtn.style.display='none';
       logo.classList.add('show');
       setTimeout(()=>{
         logo.classList.add('glitch');
         if(typeof playCinematicStinger==='function')playCinematicStinger();
-      },400);
-      setTimeout(()=>sub.classList.add('show'),700);
+      },150);
+      setTimeout(()=>sub.classList.add('show'),350);
       setTimeout(()=>{
         wel.classList.add('show');
+        wel.textContent=welcomeLine;
         if(typeof playCinematicWhoosh==='function')playCinematicWhoosh();
-        typeInto(wel,welcomeLine,22,()=>{
-          barW.classList.add('show');
-          setTimeout(()=>bar.classList.add('full'),80);
-          setTimeout(enterGame,1700);
-        });
-      },1100);
+        barW.classList.add('show');
+        setTimeout(()=>bar.classList.add('full'),60);
+        setTimeout(enterGame,900);
+      },550);
       return;
     }
-    const line=lines[lineIdx++];
-    typeInto(bootEl,(bootEl.textContent?'\n':'')+line,28,()=>{
-      setTimeout(nextLine,220);
-    });
+
+    // FULL CINEMATIC — first open of the day
+    const lines=[
+      '> HAKAI PROTOCOL — INITIALIZATION SEQUENCE',
+      returning
+        ? '> HUNTER FILE DETECTED. LOADING PROFILE...'
+        : '> NO HUNTER FILE FOUND. FIRST-TIME REGISTRATION REQUIRED.',
+      '> CALIBRATING NEURAL INTERFACE...',
+      '> SYSTEM READY.',
+    ];
+
+    let lineIdx=0;
+    function nextLine(){
+      if(lineIdx>=lines.length){
+        logo.classList.add('show');
+        setTimeout(()=>{
+          logo.classList.add('glitch');
+          if(typeof playCinematicStinger==='function')playCinematicStinger();
+        },400);
+        setTimeout(()=>sub.classList.add('show'),700);
+        setTimeout(()=>{
+          wel.classList.add('show');
+          if(typeof playCinematicWhoosh==='function')playCinematicWhoosh();
+          typeInto(wel,welcomeLine,22,()=>{
+            barW.classList.add('show');
+            setTimeout(()=>bar.classList.add('full'),80);
+            setTimeout(enterGame,1700);
+          });
+        },1100);
+        return;
+      }
+      const line=lines[lineIdx++];
+      typeInto(bootEl,(bootEl.textContent?'\n':'')+line,28,()=>{
+        setTimeout(nextLine,220);
+      });
+    }
+    setTimeout(nextLine,200);
   }
-  setTimeout(nextLine,200);
+
+  // GATE — wait for a real user gesture so the AudioContext unlocks
+  // instantly and the boot hum/stinger play in sync with the visuals
+  const gate=document.createElement('div');
+  gate.id='cin-gate';
+  gate.innerHTML='<span>[ CLICK OR PRESS ANY KEY TO INITIALIZE ]</span>';
+  cin.appendChild(gate);
+  let gateOpened=false;
+  function openGate(e){
+    if(gateOpened)return;gateOpened=true;
+    if(e&&e.stopPropagation)e.stopPropagation();
+    if(typeof unlockAudioContext==='function')unlockAudioContext();
+    gate.remove();
+    beginSequence();
+  }
+  gate.addEventListener('click',openGate);
+  document.addEventListener('keydown',openGate,{once:true});
 }
 
 window.addEventListener('DOMContentLoaded',()=>{
@@ -1958,5 +1979,35 @@ window.addEventListener('DOMContentLoaded',()=>{
   showLaunchCinematic(()=>{
     if(S.playerName){showGame();}
     else{const sel=document.getElementById('screen-select');if(sel){sel.style.display='';sel.classList.add('visible');}}
+  });
+});
+
+/* ═══════════════════════════════════════════════
+   FULLSCREEN TOGGLE — small button, top right
+   ESC exits fullscreen natively (browser default)
+═══════════════════════════════════════════════ */
+document.addEventListener('DOMContentLoaded',()=>{
+  const btn=document.createElement('button');
+  btn.id='fullscreen-toggle-btn';
+  btn.title='Toggle Fullscreen (Esc to exit)';
+  btn.textContent='⛶';
+  btn.style.cssText='position:fixed;top:12px;right:88px;z-index:9000;'
+    +'background:rgba(20,10,40,.85);border:1px solid #3b2060;'
+    +'color:#a78bfa;width:34px;height:34px;border-radius:8px;'
+    +'cursor:pointer;font-size:16px;display:flex;'
+    +'align-items:center;justify-content:center;'
+    +'backdrop-filter:blur(6px);transition:all .2s;';
+  btn.onmouseenter=()=>btn.style.borderColor='#7c3aed';
+  btn.onmouseleave=()=>btn.style.borderColor='#3b2060';
+  btn.onclick=()=>{
+    if(!document.fullscreenElement){
+      document.documentElement.requestFullscreen().catch(()=>{});
+    }else{
+      document.exitFullscreen().catch(()=>{});
+    }
+  };
+  document.body.appendChild(btn);
+  document.addEventListener('fullscreenchange',()=>{
+    btn.textContent=document.fullscreenElement?'⤢':'⛶';
   });
 });

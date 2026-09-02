@@ -30,6 +30,12 @@
   };
   window.isMuted = () => muted;
 
+  /* ── unlock audio context on first real user gesture ── */
+  window.unlockAudioContext = function(){
+    const c = getCtx();
+    if(c.state !== 'running') c.resume();
+  };
+
   /* ── primitives ── */
   function note(c, freq, start, dur, vol=0.3, type='sine'){
     const osc = c.createOscillator(), gain = c.createGain();
