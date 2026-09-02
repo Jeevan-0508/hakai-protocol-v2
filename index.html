@@ -207,7 +207,7 @@
           <div class="streak-divider"></div>
           <div class="streak-item">
             <span class="streak-num" id="streak-total-days">0</span>
-            <span class="streak-lbl">DAYS COMPLETED</span>
+            <span class="streak-lbl">DAYS ACTIVE</span>
           </div>
           <div class="streak-divider"></div>
           <div class="streak-item">
@@ -235,6 +235,7 @@
           <button class="quest-mgmt-toggle" id="quest-mgmt-toggle" onclick="toggleQuestMgmt()">⚙ MANAGE QUESTS</button>
         </div>
         <div class="quest-mgmt-section" id="quest-mgmt-section" style="display:none">
+          <div id="quest-mgmt-warn" style="display:none;background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.4);border-radius:8px;padding:10px 16px;margin-bottom:14px;font-family:'Orbitron',sans-serif;font-size:.6rem;letter-spacing:2px;color:#fbbf24;">⚠ VIEWING PAST DAY — changes here only affect this day's quest list</div>
           <div class="sidebar-section-label" style="margin-bottom:12px;">CURRENT QUESTS</div>
           <div class="quest-mgmt-list" id="quest-mgmt-list"></div>
           <div class="add-quest-form">
