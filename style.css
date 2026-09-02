@@ -314,7 +314,8 @@ body{background:var(--bg-deep);color:var(--text-primary);font-family:'Rajdhani',
   display:none;align-items:center;justify-content:center;padding:40px;backdrop-filter:blur(10px);}
 .story-modal-bg.open{display:flex;animation:fadeIn .3s ease;}
 .story-modal{max-width:700px;width:100%;background:var(--bg-panel);border:1px solid var(--border-mid);
-  border-radius:var(--radius);padding:40px;box-shadow:0 0 60px rgba(59,130,246,.2);position:relative;}
+  border-radius:var(--radius);padding:40px;box-shadow:0 0 60px rgba(59,130,246,.2);position:relative;
+  max-height:85vh;overflow-y:auto;}
 .story-modal-floor{font-family:'Orbitron',sans-serif;font-size:.6rem;letter-spacing:5px;color:var(--cyan);margin-bottom:8px;}
 .story-modal-arc{font-size:.75rem;color:var(--text-dim);letter-spacing:2px;margin-bottom:16px;}
 .story-modal-title{font-family:'Orbitron',sans-serif;font-size:1.5rem;font-weight:700;letter-spacing:3px;
