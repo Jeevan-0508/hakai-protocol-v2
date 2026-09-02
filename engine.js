@@ -364,7 +364,24 @@ const _tdy=new Date();
 let calYear=_tdy.getFullYear();let calMonth=_tdy.getMonth();
 let calOpen=false;
 function toggleCalendar(){calOpen=!calOpen;const body=document.getElementById('cal-body');const btn=document.getElementById('cal-toggle-btn');if(body){body.style.maxHeight=calOpen?body.scrollHeight+'px':'0';}if(btn){btn.querySelector('.cal-chevron').textContent=calOpen?'▲':'▼';btn.querySelector('.cal-toggle-label').textContent=calOpen?'HIDE CALENDAR':'BROWSE BY DATE';}}
-function selectQuestDate(dKey){selectedQuestDate=dKey;renderQuests();if(typeof playUINav==='function')playUINav();}
+function selectQuestDate(dKey){
+  selectedQuestDate=dKey;
+  const today=todayKey();
+  if(!S.habitSnapshots)S.habitSnapshots={};
+  // Lock in a snapshot for past days on first visit — prevents today's edits from changing them later
+  if(dKey<today&&!S.habitSnapshots[dKey]){
+    const dayData=S.habitData[dKey];
+    if(dayData&&Object.keys(dayData).length){
+      const ids=Object.keys(dayData);
+      const snap=ids.map(id=>S.habits.find(h=>h.id===id)||DEFAULT_HABITS.find(h=>h.id===id)).filter(Boolean);
+      S.habitSnapshots[dKey]=snap.length?snap:S.habits.map(h=>({...h}));
+    } else {
+      S.habitSnapshots[dKey]=S.habits.map(h=>({...h}));
+    }
+    saveState();
+  }
+  renderQuests();if(typeof playUINav==='function')playUINav();
+}
 function saveState(){localStorage.setItem('hakai_v2',JSON.stringify(S));}
 function resetState(){if(!confirm('ERASE ALL PROGRESS? This cannot be undone.'))return;localStorage.removeItem('hakai_v2');location.reload();}
 function xpForLevel(lv){return Math.floor(100*Math.pow(1.12,lv-1));}
@@ -381,18 +398,21 @@ function getHabitsForDate(date){
   const today=todayKey();
   // Today or future: always use current list
   if(date>=today)return S.habits;
-  // Snapshot exists: use stored habit objects for that day
+  // Snapshot exists: use stored habit objects (immutable per-day)
   if(S.habitSnapshots&&S.habitSnapshots[date]&&S.habitSnapshots[date].length)return S.habitSnapshots[date];
-  // Legacy (no snapshot): infer from habitData keys so old days still show their quests
+  // Legacy (no snapshot): infer from habitData keys
+  // Falls back to DEFAULT_HABITS for habits removed from S.habits so old days don't lose them
   const dayData=S.habitData[date];
   if(dayData){
     const ids=Object.keys(dayData);
     if(ids.length){
-      const mapped=ids.map(id=>S.habits.find(h=>h.id===id)).filter(Boolean);
+      const mapped=ids.map(id=>S.habits.find(h=>h.id===id)||DEFAULT_HABITS.find(h=>h.id===id)).filter(Boolean);
       if(mapped.length)return mapped;
     }
   }
-  return S.habits;
+  // No data for this day at all — return DEFAULT_HABITS, not live S.habits,
+  // so today's quest changes never bleed into untouched past days
+  return DEFAULT_HABITS.map(h=>({...h}));
 }
 function getDayCompletion(ds){const d=S.habitData[ds];if(!d)return 0;const h=getHabitsForDate(ds);if(!h.length)return 0;return h.filter(x=>d[x.id]).length/h.length;}
 function isDayComplete(ds){return getDayCompletion(ds)>=1;}
@@ -595,6 +615,16 @@ function removeHabit(habitId){if(typeof playUIRemove==='function')playUIRemove()
     // Today/future: remove from global list + refresh snapshot
     if(S.habits.length<=1){toast('CANNOT REMOVE — Minimum 1 quest required.');return;}
     if(!confirm('Remove this quest? Progress for this quest will be preserved in history.'))return;
+    // Before removing: freeze snapshots for any past day that has this habit but no snapshot yet
+    // This ensures removed habits don't disappear from past days
+    Object.keys(S.habitData).forEach(d=>{
+      if(d>=today)return;
+      if(S.habitSnapshots[d]&&S.habitSnapshots[d].length)return;
+      const ids=Object.keys(S.habitData[d]);
+      if(!ids.includes(habitId))return;
+      const snap=ids.map(id=>S.habits.find(h=>h.id===id)||DEFAULT_HABITS.find(h=>h.id===id)).filter(Boolean);
+      if(snap.length)S.habitSnapshots[d]=snap;
+    });
     S.habits=S.habits.filter(h=>h.id!==habitId);
     S.habitSnapshots[today]=S.habits.map(h=>({...h}));
   }
