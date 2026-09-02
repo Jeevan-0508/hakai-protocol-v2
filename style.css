@@ -1569,3 +1569,79 @@ body{background:var(--bg-deep);color:var(--text-primary);font-family:'Rajdhani',
 ══════════════════════════════════════════════ */
 .reward-pill.habit-streak { background:rgba(239,68,68,.12); border-color:rgba(239,68,68,.3); color:#f87171; }
 .reward-pill.streak-mult  { background:rgba(251,191,36,.12); border-color:rgba(251,191,36,.3); color:#fbbf24; font-weight:900; }
+
+/* ═══════════════════════════════════════════════
+   QUEST COMPLETE — STAT GAIN VISUAL FEEDBACK
+═══════════════════════════════════════════════ */
+.stat-gain-fly{position:fixed;z-index:9000;font-family:"Orbitron",sans-serif;font-weight:700;font-size:.85rem;pointer-events:none;transition:transform 0.85s cubic-bezier(.2,.8,.3,1),opacity 0.85s ease;opacity:1;text-shadow:0 0 12px currentColor;}
+.stat-gain-fly.flying{transform:var(--fly-transform);opacity:0;}
+
+.stat-row.stat-pulse{animation:statPulse .6s ease;}
+@keyframes statPulse{
+  0%{transform:scale(1);}
+  30%{transform:scale(1.08);}
+  60%{transform:scale(0.98);}
+  100%{transform:scale(1);}
+}
+.stat-row.stat-pulse .stat-bar-fill{filter:brightness(1.6);}
+.stat-row.stat-pulse .stat-value{transform:scale(1.3);transition:transform .3s ease;}
+.stat-row .stat-value{display:inline-block;transition:transform .3s ease;}
+
+.stat-bar-fill{position:relative;overflow:visible;}
+.stat-row.stat-pulse .stat-bar-wrap{box-shadow:0 0 12px 2px currentColor;}
+
+.quest-card.completing{animation:questPop .5s ease;}
+@keyframes questPop{
+  0%{transform:scale(1);}
+  35%{transform:scale(1.025);box-shadow:0 0 24px rgba(34,211,238,.35);}
+  100%{transform:scale(1);}
+}
+
+.xp-burst{position:fixed;z-index:9000;pointer-events:none;font-family:"Orbitron",sans-serif;font-size:.9rem;font-weight:800;color:#facc15;text-shadow:0 0 14px rgba(250,204,21,.8);animation:xpBurstFloat 1s ease forwards;}
+@keyframes xpBurstFloat{
+  0%{opacity:0;transform:translateY(0) scale(.7);}
+  15%{opacity:1;transform:translateY(-6px) scale(1.15);}
+  70%{opacity:1;transform:translateY(-38px) scale(1);}
+  100%{opacity:0;transform:translateY(-56px) scale(.9);}
+}
+
+/* ═══════════════════════════════════════════════
+   GATE CARD — enhanced with shimmer + progress glow
+═══════════════════════════════════════════════ */
+.gate-card{position:relative;overflow:hidden;}
+.gate-card::before{content:"";position:absolute;top:0;left:-100%;width:60%;height:100%;background:linear-gradient(100deg,transparent,rgba(34,211,238,.08),transparent);transition:left 1.2s ease;pointer-events:none;}
+.gate-card:hover::before{left:130%;}
+.gate-card.active-gate{border-color:var(--cyan);animation:gateActivePulse 2.4s ease-in-out infinite;}
+@keyframes gateActivePulse{
+  0%,100%{box-shadow:0 0 18px rgba(34,211,238,.15);}
+  50%{box-shadow:0 0 34px rgba(34,211,238,.35),0 0 60px rgba(34,211,238,.1);}
+}
+.gate-card.cleared-gate{position:relative;}
+.gate-card.cleared-gate::after{content:"✓";position:absolute;top:14px;right:16px;color:#4ade80;font-size:1.1rem;font-weight:900;text-shadow:0 0 10px rgba(74,222,128,.6);}
+.gate-progress-fill,.gate-days-mini .gate-day-mini.done{transition:.3s;}
+.gate-card.active-gate .gate-card-title{text-shadow:0 0 12px rgba(34,211,238,.5);}
+.gate-day-mini{transition:transform .2s ease,box-shadow .2s ease;}
+.gate-day-mini.done{box-shadow:0 0 8px rgba(34,211,238,.5);}
+.gate-day-mini.today{animation:gateTodayBlink 1.6s ease-in-out infinite;}
+@keyframes gateTodayBlink{0%,100%{opacity:1;}50%{opacity:.4;}}
+
+/* ═══════════════════════════════════════════════
+   DAY COMPLETE / WEEKLY RECAP — shimmer polish
+═══════════════════════════════════════════════ */
+.dc-box,.wr-box{position:relative;}
+.dc-box::before,.wr-box::before{content:"";position:absolute;inset:-2px;border-radius:16px;background:linear-gradient(120deg,transparent,rgba(255,255,255,.15),transparent);background-size:200% 100%;animation:boxShimmer 2.6s linear infinite;pointer-events:none;opacity:.5;}
+@keyframes boxShimmer{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
+.dc-title{animation:dcTitleGlow 1.8s ease-in-out infinite;}
+@keyframes dcTitleGlow{
+  0%,100%{text-shadow:0 0 12px rgba(167,139,250,.4);}
+  50%{text-shadow:0 0 26px rgba(167,139,250,.8),0 0 46px rgba(167,139,250,.3);}
+}
+.dc-stat.highlight{animation:dcNumPop .5s cubic-bezier(.34,1.56,.64,1) .3s both;}
+@keyframes dcNumPop{0%{transform:scale(.5);opacity:0;}100%{transform:scale(1);opacity:1;}}
+.wr-title{animation:dcTitleGlow 1.8s ease-in-out infinite;}
+.wr-stat{transition:transform .2s ease;}
+.wr-stat:hover{transform:translateY(-2px);}
+
+/* Weapon drop shimmer too */
+.weapon-drop{position:relative;}
+.weapon-drop::before{content:"";position:absolute;inset:-2px;border-radius:8px;background:linear-gradient(120deg,transparent,rgba(255,255,255,.12),transparent);background-size:200% 100%;animation:boxShimmer 2.6s linear infinite;pointer-events:none;}

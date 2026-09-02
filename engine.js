@@ -533,6 +533,9 @@ function toggleHabit(habitId){
   if(!S.habitData[date]){S.habitData[date]={};if(!S.habitSnapshots)S.habitSnapshots={};if(!S.habitSnapshots[date]){const _td=todayKey();S.habitSnapshots[date]=date>=_td?S.habits.map(h=>({...h})):DEFAULT_HABITS.map(h=>({...h}));}}
   const wasDone=!!S.habitData[date][habitId];
   const habit=getHabitsForDate(date).find(h=>h.id===habitId);if(!habit)return;
+  const prevCard=document.getElementById('card-'+habitId);
+  const originRect=prevCard?prevCard.getBoundingClientRect():null;
+  let earnedXP=0;
   if(wasDone){
     S.habitData[date][habitId]=false;if(typeof playHabitUntick==='function')playHabitUntick();
     S.xp=Math.max(0,S.xp-habit.xp);S.totalXPEarned=Math.max(0,S.totalXPEarned-habit.xp);
@@ -540,14 +543,58 @@ function toggleHabit(habitId){
   }else{
     S.habitData[date][habitId]=true;
     const mult=getStreakMultiplier();const crBonus=getCreatureXPBonus();
-    const earnedXP=Math.round(habit.xp*mult*(1+crBonus));
+    earnedXP=Math.round(habit.xp*mult*(1+crBonus));
     S.xp+=earnedXP;S.totalXPEarned+=earnedXP;
     S.stats[habit.stat]=(S.stats[habit.stat]||1)+1;
     checkWeaponUpgrades();checkCreatureUnlocks();checkBossProgress();checkAchievements();if(typeof playHabitComplete==='function')playHabitComplete();
   }
   saveState();checkLevelUp();checkDayCompletion(date,!wasDone);renderAll();
   const card=document.getElementById('card-'+habitId);
-  if(card&&!wasDone){card.classList.add('completing');setTimeout(()=>card.classList.remove('completing'),600);}
+  if(card&&!wasDone){
+    card.classList.add('completing');setTimeout(()=>card.classList.remove('completing'),600);
+    if(originRect)celebrateStatGain(habit,originRect,earnedXP);
+  }
+}
+
+/* ── QUEST COMPLETE — flying stat gain + XP burst + sidebar pulse ── */
+function celebrateStatGain(habit,originRect,earnedXP){
+  const statEl=document.getElementById('stat-bar-'+habit.stat);
+  const statRow=statEl?statEl.closest('.stat-row'):null;
+  const statColors={STR:'#f87171',INT:'#60a5fa',AGI:'#4ade80',VIT:'#a78bfa',SEN:'#fbbf24'};
+  const color=statColors[habit.stat]||'#22d3ee';
+
+  // XP burst near the card
+  const xpEl=document.createElement('div');
+  xpEl.className='xp-burst';
+  xpEl.textContent='+'+earnedXP+' XP';
+  xpEl.style.left=(originRect.left+originRect.width*0.5-24)+'px';
+  xpEl.style.top=(originRect.top+8)+'px';
+  document.body.appendChild(xpEl);
+  setTimeout(()=>xpEl.remove(),1000);
+
+  // Flying stat badge -> sidebar stat row
+  if(statRow){
+    const targetRect=statRow.getBoundingClientRect();
+    const fly=document.createElement('div');
+    fly.className='stat-gain-fly';
+    fly.textContent='+1 '+habit.stat;
+    fly.style.color=color;
+    fly.style.left=(originRect.right-40)+'px';
+    fly.style.top=(originRect.top+originRect.height/2-10)+'px';
+    document.body.appendChild(fly);
+    const dx=(targetRect.left+16)-(originRect.right-40);
+    const dy=(targetRect.top+targetRect.height/2-10)-(originRect.top+originRect.height/2-10);
+    fly.style.setProperty('--fly-transform','translate('+dx+'px,'+dy+'px) scale(.4)');
+    requestAnimationFrame(()=>{
+      requestAnimationFrame(()=>fly.classList.add('flying'));
+    });
+    setTimeout(()=>{
+      fly.remove();
+      statRow.classList.add('stat-pulse');
+      statRow.style.color=color;
+      setTimeout(()=>{statRow.classList.remove('stat-pulse');statRow.style.color='';},650);
+    },820);
+  }
 }
 
 function checkLevelUp(){
@@ -1724,6 +1771,11 @@ function showLaunchCinematic(onComplete){
   const streak = returning ? (S.streak||0) : null;
   const rank = returning ? getRank(S.level||1).label : null;
 
+  const todayStr = new Date().toDateString();
+  const lastCin = localStorage.getItem('hakai_cin_date');
+  const fastMode = (lastCin === todayStr);
+  localStorage.setItem('hakai_cin_date', todayStr);
+
   // Inject styles
   const style = document.createElement('style');
   style.id = 'cin-style';
@@ -1752,10 +1804,6 @@ function showLaunchCinematic(onComplete){
       50%{text-shadow:2px 0 #f59e0b,-2px 0 #6d28d9,0 0 40px rgba(109,40,217,.8);clip-path:inset(30% 0 50% 0);}
       75%{text-shadow:-2px 0 #f59e0b,2px 0 #6d28d9,0 0 40px rgba(109,40,217,.8);clip-path:inset(0% 0 0% 0);}
       100%{text-shadow:0 0 40px rgba(109,40,217,.8),0 0 80px rgba(109,40,217,.3);clip-path:none;}
-    }
-    @keyframes cFlickerIn{
-      0%,18%,22%,25%,53%,57%,100%{opacity:1;}
-      20%,24%,55%{opacity:0;}
     }
   `;
   document.head.appendChild(style);
@@ -1790,7 +1838,6 @@ function showLaunchCinematic(onComplete){
   let animFrame;
   function drawParticles(){
     ctx2.clearRect(0,0,canvas.width,canvas.height);
-    // grid
     ctx2.strokeStyle='rgba(109,40,217,.06)';ctx2.lineWidth=1;
     for(let x=0;x<canvas.width;x+=40){ctx2.beginPath();ctx2.moveTo(x,0);ctx2.lineTo(x,canvas.height);ctx2.stroke();}
     for(let y=0;y<canvas.height;y+=40){ctx2.beginPath();ctx2.moveTo(0,y);ctx2.lineTo(canvas.width,y);ctx2.stroke();}
@@ -1805,7 +1852,8 @@ function showLaunchCinematic(onComplete){
   }
   drawParticles();
 
-  // Typewriter helper
+  if(typeof playCinematicHum==='function')playCinematicHum();
+
   function typeInto(el,text,speed,done){
     let i=0;el.textContent='';
     const iv=setInterval(()=>{
@@ -1815,7 +1863,6 @@ function showLaunchCinematic(onComplete){
     return iv;
   }
 
-  // Cleanup + enter game
   let completed=false;
   function enterGame(){
     if(completed)return;completed=true;
@@ -1831,17 +1878,40 @@ function showLaunchCinematic(onComplete){
     },120);
   }
 
-  // Skip handler
   cin.addEventListener('click',enterGame);
 
-  // SEQUENCE
-  const bootEl=document.getElementById('cin-boot');
   const logo=document.getElementById('cin-logo');
   const sub=document.getElementById('cin-sub');
   const wel=document.getElementById('cin-welcome');
   const barW=document.getElementById('cin-bar-wrap');
   const bar=document.getElementById('cin-bar');
+  const bootEl=document.getElementById('cin-boot');
 
+  const welcomeLine = returning
+    ? '> WELCOME BACK, '+name+' · LV '+level+' '+rank+' · STREAK '+streak+' DAYS'
+    : '> HUNTER DESIGNATION REQUIRED. CHOOSE YOUR ARCHETYPE.';
+
+  if(fastMode){
+    // FAST REPLAY — same-day reopen: quick logo flash, no boot lines
+    document.getElementById('cin-skip').style.display='none';
+    logo.classList.add('show');
+    setTimeout(()=>{
+      logo.classList.add('glitch');
+      if(typeof playCinematicStinger==='function')playCinematicStinger();
+    },150);
+    setTimeout(()=>sub.classList.add('show'),350);
+    setTimeout(()=>{
+      wel.classList.add('show');
+      wel.textContent=welcomeLine;
+      if(typeof playCinematicWhoosh==='function')playCinematicWhoosh();
+      barW.classList.add('show');
+      setTimeout(()=>bar.classList.add('full'),60);
+      setTimeout(enterGame,900);
+    },550);
+    return;
+  }
+
+  // FULL CINEMATIC — first open of the day
   const lines=[
     '> HAKAI PROTOCOL — INITIALIZATION SEQUENCE',
     returning
@@ -1854,26 +1924,20 @@ function showLaunchCinematic(onComplete){
   let lineIdx=0;
   function nextLine(){
     if(lineIdx>=lines.length){
-      // Show logo
       logo.classList.add('show');
-      setTimeout(()=>logo.classList.add('glitch'),400);
+      setTimeout(()=>{
+        logo.classList.add('glitch');
+        if(typeof playCinematicStinger==='function')playCinematicStinger();
+      },400);
       setTimeout(()=>sub.classList.add('show'),700);
-      // Welcome back or register
       setTimeout(()=>{
         wel.classList.add('show');
-        if(returning){
-          typeInto(wel,'> WELCOME BACK, '+name+' · LV '+level+' '+rank+' · STREAK '+streak+' DAYS',22,()=>{
-            barW.classList.add('show');
-            setTimeout(()=>bar.classList.add('full'),80);
-            setTimeout(enterGame,1700);
-          });
-        } else {
-          typeInto(wel,'> HUNTER DESIGNATION REQUIRED. CHOOSE YOUR ARCHETYPE.',22,()=>{
-            barW.classList.add('show');
-            setTimeout(()=>bar.classList.add('full'),80);
-            setTimeout(enterGame,1700);
-          });
-        }
+        if(typeof playCinematicWhoosh==='function')playCinematicWhoosh();
+        typeInto(wel,welcomeLine,22,()=>{
+          barW.classList.add('show');
+          setTimeout(()=>bar.classList.add('full'),80);
+          setTimeout(enterGame,1700);
+        });
       },1100);
       return;
     }

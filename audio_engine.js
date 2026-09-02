@@ -295,4 +295,35 @@
     };
     document.body.appendChild(btn);
   });
+
+  /* 13 — Cinematic boot hum — low sustained drone with slow sweep */
+  window.playCinematicHum = function(){
+    withCtx(c => {
+      const t = c.currentTime;
+      sweep(c, 45, 62, t, 3.2, 0.16, 'sawtooth');
+      sweep(c, 90, 124, t, 3.2, 0.06, 'sine');
+      note(c, 45, t, 3.0, 0.1, 'triangle');
+    });
+  };
+
+  /* 14 — Cinematic glitch stinger — sharp metallic hit for logo reveal */
+  window.playCinematicStinger = function(){
+    withCtx(c => {
+      const t = c.currentTime;
+      note(c, 880, t, 0.08, 0.18, 'square');
+      note(c, 220, t, 0.35, 0.3, 'sawtooth');
+      note(c, 55, t, 0.4, 0.28, 'triangle');
+      noise(c, t, 0.06, 0.12);
+      [1200,900,1500].forEach((f,i)=>note(c, f, t+i*0.02, 0.05, 0.08, 'square'));
+    });
+  };
+
+  /* 15 — Cinematic whoosh — welcome-back line typing accent */
+  window.playCinematicWhoosh = function(){
+    withCtx(c => {
+      const t = c.currentTime;
+      sweep(c, 200, 900, t, 0.5, 0.12, 'sine');
+    });
+  };
+
 })();
