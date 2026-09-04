@@ -11,7 +11,7 @@
 ╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝  ╚═╝╚═╝    ╚═╝     ╚═╝  ╚═╝ ╚═════╝    ╚═╝    ╚═════╝  ╚═════╝ ╚═════╝ ╚══════╝
 ```
 
-### V 2.0 — HUNTER SYSTEM
+### V 2.3 — HUNTER SYSTEM
 
 *A real-life RPG where your habits are your power*
 
@@ -39,6 +39,37 @@
 The concept: every time you work out, read, code, meditate, or plan your day — you gain XP, level up, unlock creatures for your Shadow Army, forge legendary weapons, and fight world bosses. Your discipline is your build.
 
 > *The system does not reward potential. It rewards execution.*
+
+## ✨ v2.3 — Retention Systems
+
+Everything below lives in one additive file, `systems.js`. It wraps four engine
+functions rather than editing them, and every hook is guarded: if a system
+throws, the original shipped game runs instead of a blank screen.
+
+- **Daily Directive** — one rotating objective per day (clear everything / any 3 /
+  first quest before 09:00 / 2 before noon / hit your weakest stat), worth bonus
+  XP plus a Shadow Cache. Picked deterministically from the date, so refreshing
+  cannot reroll it, and time-gated objectives are removed from the pool once
+  their window has already closed. The countdown targets the same day boundary
+  the engine scores by, not local midnight.
+- **Streak Shields** — one shield per 7 complete days, held up to 3. A missed day
+  is absorbed automatically on next launch and the shield is spent, so a single
+  bad day no longer deletes a 40-day streak, but the miss is not free either.
+- **Shadow Caches** — a 14% drop per newly completed quest, opened for Common /
+  Rare / Epic rewards. The roll is recorded once per quest per day, so unticking
+  and reticking a quest cannot farm it.
+- **Proximity Scan** — the three closest unlocks with exact distances (next level,
+  next rank, creature, weapon tier, boss), computed from the real unlock data
+  instead of being invisible until they fire.
+- **Rebuild Protocol** — two or more genuinely missed days grant +50% XP for three
+  days, so coming back after a bad week is the easiest moment to play, not the
+  hardest. Days a shield absorbed do not count as missed.
+- **App Badge** — the installed PWA puts the number of quests left on its own home
+  screen icon. With no push server this is the only nudge available.
+
+Four achievements were added for the new systems (15 → 19). All new state is
+namespaced under one `sys` key with a defaults backfill, so existing saves
+migrate silently and nothing already earned is touched.
 
 ## ✨ v2.1 Additions
 
@@ -70,7 +101,7 @@ The concept: every time you work out, read, code, meditate, or plan your day —
 
 ### Engine Structure
 
-The engine lives in a single `engine.js` (~2,000 lines) plus two companion files that load after it:
+The engine lives in a single `engine.js` (~2,000 lines) plus three companion files that load after it:
 
 ```
 engine.js         →  Constants, state, XP/leveling, unlock logic,
@@ -81,9 +112,13 @@ audio_engine.js   →  Web Audio synthesized SFX (no audio files — every
                       cinematic hum/stinger/whoosh
 dev_panel.js      →  Developer sandbox overlay (level/XP override,
                       creature/boss debug tools) — hidden behind dev/ flag
+systems.js        →  Daily directive, streak shields, shadow caches,
+                      proximity scan, rebuild protocol, app badge.
+                      Wraps recalcStreak / getStreakMultiplier /
+                      toggleHabit / renderAll instead of editing them
 ```
 
-No build step, no bundler — the three files are loaded directly by `index.html` in that order.
+No build step, no bundler — the four files are loaded directly by `index.html` in that order.
 
 ### 🔄 Core Game Loop
 
@@ -525,6 +560,7 @@ hakai-protocol-v2/
 ├── audio_engine.js         # Synthesized sound effects + mute toggle
 ├── style.css               # All styles
 ├── dev_panel.js            # Developer sandbox overlay
+├── systems.js              # Retention systems (directive, shields, caches, scan)
 ├── dev/
 │   └── index.html          # Dev mode activator (sets session flag → redirects)
 │

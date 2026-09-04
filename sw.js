@@ -2,13 +2,14 @@
    HAKAI PROTOCOL — Service Worker
    Caches all assets for full offline play
    ============================================================ */
-const CACHE = 'hakai-v2.2';
+const CACHE = 'hakai-v2.3';
 const ASSETS = [
   './',
   './index.html',
   './engine.js',
   './style.css',
   './dev_panel.js',
+  './systems.js',
   './manifest.json',
   './icons/icon-192.png',
   './icons/icon-512.png',

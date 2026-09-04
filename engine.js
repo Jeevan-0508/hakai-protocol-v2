@@ -423,12 +423,16 @@ function getGateClearCount(){return Object.values(S.completedGates).filter(g=>g.
 function getTotalTasksDone(){let n=0;Object.values(S.habitData).forEach(d=>Object.values(d).forEach(v=>{if(v===true)n++;}));return n;}
 
 function getHabitStreak(habitId){
-  const today=todayKey();let streak=0;
-  const d=new Date(today+'T00:00:00');
+  // Walk in UTC. Parsing the key as local midnight and formatting it
+  // back with toISOString started the walk on the wrong day east of
+  // UTC, so a habit completed today reported a streak of 0 until
+  // yesterday was done too.
+  let streak=0;
+  const d=new Date(todayKey()+'T00:00:00Z');
   for(let i=0;i<365;i++){
     const dKey=d.toISOString().split('T')[0];
     if(!(S.habitData[dKey]&&S.habitData[dKey][habitId]))break;
-    streak++;d.setDate(d.getDate()-1);
+    streak++;d.setUTCDate(d.getUTCDate()-1);
   }
   return streak;
 }
