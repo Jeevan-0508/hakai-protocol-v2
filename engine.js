@@ -1673,10 +1673,26 @@ function renderAll(){
   if(id==='tab-gates')renderGates();
   if(id==='tab-calendar')renderCalendar();if(id==='tab-achievements')renderAchievements();
 }
+/* Hide the tab-bar edge fade once it is scrolled to the end. Bails out while
+   the bar has no width, otherwise it latches on before the game screen shows. */
+function syncTabFade(){
+  const n=document.querySelector('.tab-nav');
+  if(!n||!n.clientWidth)return;
+  n.classList.toggle('at-end', n.scrollLeft + n.clientWidth >= n.scrollWidth - 4);
+}
+window.addEventListener('load',()=>{
+  const n=document.querySelector('.tab-nav');
+  if(n)n.addEventListener('scroll',syncTabFade,{passive:true});
+});
+window.addEventListener('resize',syncTabFade);
+
 function switchTab(tabId){if(typeof playUINav==='function')playUINav();{const s=document.querySelector('.game-sidebar');const o=document.getElementById('sidebar-overlay');if(s&&s.classList.contains('sidebar-open')){s.classList.remove('sidebar-open');if(o)o.classList.remove('active');document.body.style.overflow='';}};
   document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
-  document.querySelector('[data-tab="'+tabId+'"]').classList.add('active');
+  const activeBtn=document.querySelector('[data-tab="'+tabId+'"]');
+  activeBtn.classList.add('active');
+  if(activeBtn.scrollIntoView)activeBtn.scrollIntoView({inline:'center',block:'nearest',behavior:'smooth'});
+  setTimeout(syncTabFade,450);
   document.getElementById(tabId).classList.add('active');
   if(tabId==='tab-quests')renderQuests();
   if(tabId==='tab-ascension')renderAscension();
@@ -1741,7 +1757,7 @@ function selectChar(name){
 }
 function showGame(){
   document.getElementById('screen-game').classList.add('visible');
-  checkCreatureUnlocks();renderAll();switchTab('tab-quests');
+  checkCreatureUnlocks();renderAll();switchTab('tab-quests');syncTabFade();
 }
 function exportProgress(){if(typeof playUISuccess==='function')playUISuccess();
   const blob=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});

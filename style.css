@@ -155,7 +155,7 @@ body{background:var(--bg-deep);color:var(--text-primary);font-family:'Rajdhani',
   padding:8px;width:100%;cursor:pointer;border-radius:var(--radius-sm);transition:.3s;}
 .sidebar-reset-btn:hover{border-color:#f87171;color:#f87171;}
 
-.game-content{flex:1;margin-left:var(--sidebar);padding:28px;min-height:calc(100vh - var(--header-h));}
+.game-content{flex:1;min-width:0;margin-left:var(--sidebar);padding:28px;min-height:calc(100vh - var(--header-h));}
 
 /* ── TABS ────────────────────────────────────────────────── */
 .tab-nav{display:flex;gap:4px;margin-bottom:28px;border-bottom:1px solid var(--border-dim);overflow-x:auto;}
@@ -1164,6 +1164,15 @@ body{background:var(--bg-deep);color:var(--text-primary);font-family:'Rajdhani',
     gap: 2px !important;
   }
   nav.tab-nav::-webkit-scrollbar { display: none; }
+  /* fade the right edge so it reads as scrollable */
+  nav.tab-nav {
+    -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent 100%);
+            mask-image: linear-gradient(to right, #000 calc(100% - 28px), transparent 100%);
+  }
+  nav.tab-nav.at-end {
+    -webkit-mask-image: none;
+            mask-image: none;
+  }
   .tab-btn { font-size: 9px !important; padding: 10px 12px !important; white-space: nowrap; min-height: 44px; }
 
   /* === OTHER GRIDS === */
