@@ -15,11 +15,20 @@
   --text-primary:#e2e8f0; --text-dim:#64748b;
   --border-dim:rgba(59,130,246,0.18); --border-mid:rgba(59,130,246,0.4); --border-bright:rgba(59,130,246,0.75);
   --sidebar:240px; --header-h:58px; --radius:12px; --radius-sm:8px;
+  --copyright-h:34px;
 }
 
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 html,body{width:100%;height:100%;overflow-x:hidden;}
-body{background:var(--bg-deep);color:var(--text-primary);font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:500;line-height:1.5;}
+body{background:var(--bg-deep);color:var(--text-primary);font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:500;line-height:1.5;
+  /* the copyright bar is fixed to the bottom, so the document has to end
+     above it or it covers whatever the last element happens to be */
+  padding-bottom:calc(var(--copyright-h) + env(safe-area-inset-bottom,0px));}
+
+#copyright-bar{position:fixed;bottom:0;left:0;right:0;z-index:9999;pointer-events:none;
+  text-align:center;font-size:11px;font-weight:600;letter-spacing:.3px;
+  color:rgba(255,255,255,.25);background:rgba(0,0,0,.4);backdrop-filter:blur(6px);
+  padding:6px 16px calc(6px + env(safe-area-inset-bottom,0px));}
 
 .game-bg{position:fixed;inset:0;z-index:-10;pointer-events:none;
   background:
@@ -59,7 +68,10 @@ body{background:var(--bg-deep);color:var(--text-primary);font-family:'Rajdhani',
 
 /* ── CHARACTER SELECT ────────────────────────────────────── */
 #screen-select{position:fixed;inset:0;z-index:900;background:radial-gradient(ellipse 80% 60% at 50% 20%,#0e0630 0%,#030510 40%,#000 100%);
-  display:none;flex-direction:column;align-items:center;justify-content:center;padding:40px;}
+  display:none;flex-direction:column;align-items:center;justify-content:flex-start;padding:40px;
+  overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;}
+#screen-select.visible > .select-tag{margin-top:auto;}
+#screen-select.visible > .select-grid{margin-bottom:auto;}
 #screen-select.visible{display:flex;animation:fadeIn .6s ease;}
 .select-tag{font-family:'Orbitron',sans-serif;font-size:.65rem;letter-spacing:6px;color:var(--blue-bright);margin-bottom:8px;}
 .select-title{font-family:'Orbitron',sans-serif;font-size:clamp(1.2rem,3vw,2rem);font-weight:700;letter-spacing:4px;
@@ -1184,6 +1196,16 @@ body{background:var(--bg-deep);color:var(--text-primary);font-family:'Rajdhani',
   /* === MODALS === */
   .boss-modal, .creature-modal { margin: 0 !important; border-radius: 12px !important; }
   #boss-modal-bg, .creature-modal-bg { padding: 10px !important; }
+
+  /* === CHARACTER SELECT === */
+  #screen-select { padding: 24px 14px 32px !important; }
+  .select-tag { font-size: .55rem !important; letter-spacing: 3px !important; text-align: center; }
+  .select-title { margin-bottom: 18px !important; }
+  .select-lore { font-size: .8rem !important; margin: 8px auto 22px !important; }
+  .select-grid { gap: 20px !important; width: 100%; }
+  .char-card { width: 100% !important; max-width: 340px; }
+  .char-card img { height: 200px !important; }
+  .char-info { padding: 14px !important; }
 
   /* === DEV / AUDIO === */
   #dev-toggle { bottom: 14px; right: 14px; }
