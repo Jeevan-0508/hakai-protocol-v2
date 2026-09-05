@@ -557,7 +557,15 @@
        offsetHeight already includes the bar's own safe-area padding. */
     (function () {
       var bar = document.getElementById('copyright-bar');
-      function sync() { document.body.style.paddingBottom = bar.offsetHeight + 'px'; }
+      function sync() {
+        var h = bar.offsetHeight;
+        document.body.style.paddingBottom = h + 'px';
+        /* A position:fixed scroll container is outside the document flow,
+           so padding on <body> reserves nothing inside it. The character
+           select is one, and its last card scrolled under the bar. Expose
+           the measured height so such containers can reserve it too. */
+        document.documentElement.style.setProperty('--cbar-h', h + 'px');
+      }
       sync();
       addEventListener('resize', sync);
       addEventListener('orientationchange', sync);

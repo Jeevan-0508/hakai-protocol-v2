@@ -70,6 +70,11 @@ body{background:var(--bg-deep);color:var(--text-primary);font-family:'Rajdhani',
 #screen-select{position:fixed;inset:0;z-index:900;background:radial-gradient(ellipse 80% 60% at 50% 20%,#0e0630 0%,#030510 40%,#000 100%);
   display:none;flex-direction:column;align-items:center;justify-content:flex-start;padding:40px;
   overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;}
+/* Own scroll container -- see --cbar-h in index.html. Without this the
+   second hunter's SELECT button sat under the fixed copyright bar at full
+   scroll and could not be tapped. The literal is only the no-script
+   fallback. */
+#screen-select{padding-bottom:calc(40px + var(--cbar-h,34px));}
 #screen-select.visible > .select-tag{margin-top:auto;}
 #screen-select.visible > .select-grid{margin-bottom:auto;}
 #screen-select.visible{display:flex;animation:fadeIn .6s ease;}
@@ -1198,7 +1203,7 @@ body{background:var(--bg-deep);color:var(--text-primary);font-family:'Rajdhani',
   #boss-modal-bg, .creature-modal-bg { padding: 10px !important; }
 
   /* === CHARACTER SELECT === */
-  #screen-select { padding: 24px 14px 32px !important; }
+  #screen-select { padding: 24px 14px calc(32px + var(--cbar-h,34px)) !important; }
   .select-tag { font-size: .55rem !important; letter-spacing: 3px !important; text-align: center; }
   .select-title { margin-bottom: 18px !important; }
   .select-lore { font-size: .8rem !important; margin: 8px auto 22px !important; }
